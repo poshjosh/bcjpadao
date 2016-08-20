@@ -12,18 +12,40 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
         
         Object toPersist;
         
-# Simple use-case
+# Simple use-case (Generic Dao)
 
         try(Dao dao = new DaoImpl(em)) {
             dao.begin().persist(toPersist).commit();
         }
 
-# SELECT COUNT(*) WHERE col = 'val'
+# DeleteDao 
+
+        // Call Dao#forDelete to get DeleteDao instance, forSelect to get SelectDao... etc
+        //
+        DeleteDao<E> forDelete = dao.forDelete(entityType);
+
+        // finish() method calls executeUpdate(), commit(), close()
+        //
+        int updateCount = forDelete.begin().from(entityType).where("col_0", "val_0").finish(); 
+
+# SelectDao
+
+        List<E> resultList = dao.forSelect(entityType).getCriteria()
+                .from(entityType)
+                .select("col_0", "col_1")
+                .where()
+                .getResultsAndClose(firstResult, maxResults);
+
+# Using Builders makes life easier 
+
+        // (Builders implement CriteriaDao so no need to call getCriteria())
+
+        // SELECT COUNT(*) WHERE col = 'val'
         
-        Long count = DaoImpl(em).builderForSelect(Long.class)
+        Long count = dao.builderForSelect(Long.class)
                 .where(entityType, "col", "val").count().getSingleResultAndClose();
         
-# SELECT col_0, col_1 FROM table WHERE ... ... ORDER BY col_2 ASC col_1 ASC
+        // SELECT col_0, col_1 FROM table WHERE ... ... ORDER BY col_2 ASC col_1 ASC
 
         List<String[]> resultList = new DaoImpl(em).builderForSelect(String[].class)
                 .from(entityType)
@@ -34,12 +56,9 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
                 .ascOrder("col_2", "col_1")
                 .getResultsAndClose(firstResult, maxResults);
 
-# finish() method calls executeUpdate(), commit(), close()
-        
-        int updateCount = new DaoImpl(em).forDelete(entityType)
-                    .begin().from(entityType).where("col_0", "val_0").finish(); 
+# Reusing Dao / Builder(s)
 
-# Dao / BuilderFor may be reused if #close() has not been called. Simply call #reset() before reuse.
+        // Dao / BuilderFor may be reused if #close() has not been called. Simply call #reset() before reuse.
 
         try(BuilderForUpdate<E> reused = new DaoImpl(em).builderForUpdate(entityType)) {
             
