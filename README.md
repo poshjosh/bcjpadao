@@ -1,6 +1,8 @@
 # bcjpadao
 Light weight (18 classes) JPA helper library - syntatic sugar (elegantly expressive) and more
 
+# Define variables
+
         int firstResult = 0;
         int maxResults = 100;
         
@@ -11,12 +13,11 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
         Object toPersist;
         
 # Simple use-case
-# 
+
         try(Dao dao = new DaoImpl(em, null)) {
             dao.begin().persist(toPersist).commit();
         }
 
-#          
 # SELECT COUNT(*) WHERE col = 'val'
         
         Dao dao = new DaoImpl(em, null);
@@ -41,14 +42,13 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
                 .ascOrder("col_2", "col_1")
                 .getResultsAndClose(firstResult, maxResults);
 
-        // #finish() method calls #executeUpdate(), #commit(), #close()
-        //
+# finish() method calls executeUpdate(), commit(), close()
+        
         int updateCount = dao.forDelete(entityType)
                     .begin().from(entityType).where("col_0", "val_0").finish(); 
 
-        // Dao / BuilderFor may be reused if #close() has not been called. 
-        // Simply call #reset() before reuse.
-        //
+# Dao / BuilderFor may be reused if #close() has not been called. Simply call #reset() before reuse.
+
         try(BuilderForUpdate<E> reused = new DaoImpl(em, null).builderForUpdate(entityType)) {
             
             reused.begin();
@@ -58,8 +58,6 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
                     .set("col_0", "val_1")
                     .executeUpdate();
             
-            // Call reset() if Dao / BuilderFor is to be reused
-            //
             reused.reset();
             
             updateCount = reused.from(entityType)
