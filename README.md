@@ -53,17 +53,11 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
             
             reused.begin();
             
-            updateCount = reused.from(entityType)
-                    .where("col_0", "val_0")
-                    .set("col_0", "val_1")
-                    .executeUpdate();
+            updateCount = reused.from(entityType).where("col_0", "val_0").set("col_0", "val_1").executeUpdate();
             
             reused.reset();
             
-            updateCount = reused.from(entityType)
-                    .where("col_0", "val_1")
-                    .set("col_0", "val_0")
-                    .executeUpdate();
+            updateCount = reused.from(entityType).where("col_0", "val_1").set("col_0", "val_0").executeUpdate();
             
             reused.commit();
         }
