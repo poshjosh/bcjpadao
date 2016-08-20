@@ -10,13 +10,14 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
         
         Object toPersist;
         
-        # Simple use-case
-        # 
+# Simple use-case
+# 
         try(Dao dao = new DaoImpl(em, null)) {
             dao.begin().persist(toPersist).commit();
         }
-          
-        # SELECT COUNT(*) WHERE col = 'val'
+
+#          
+# SELECT COUNT(*) WHERE col = 'val'
         
         Dao dao = new DaoImpl(em, null);
         
