@@ -14,13 +14,13 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
         
 # Simple use-case
 
-        try(Dao dao = new DaoImpl(em, null)) {
+        try(Dao dao = new DaoImpl(em)) {
             dao.begin().persist(toPersist).commit();
         }
 
 # SELECT COUNT(*) WHERE col = 'val'
         
-        Dao dao = new DaoImpl(em, null);
+        Dao dao = new DaoImpl(em);
         
         BuilderForSelect<Long> forCount = dao.builderForSelect(Long.class);
         
@@ -30,7 +30,7 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
 
         String [] columnsToSelect = {"col_0", "col_1"};
         
-        dao = new DaoImpl(em, null);
+        dao = new DaoImpl(em);
         
         BuilderForSelect<String[]> forSelect = dao.builderForSelect(String[].class);
         
@@ -49,7 +49,7 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
 
 # Dao / BuilderFor may be reused if #close() has not been called. Simply call #reset() before reuse.
 
-        try(BuilderForUpdate<E> reused = new DaoImpl(em, null).builderForUpdate(entityType)) {
+        try(BuilderForUpdate<E> reused = new DaoImpl(em).builderForUpdate(entityType)) {
             
             reused.begin();
             
