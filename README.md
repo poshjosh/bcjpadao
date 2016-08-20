@@ -20,7 +20,8 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
 
 # SELECT COUNT(*) WHERE col = 'val'
         
-        Long count = dao.builderForSelect(Long.class).where(entityType, "col", "val").count().getSingleResultAndClose();
+        Long count = dao.builderForSelect(Long.class)
+                .where(entityType, "col", "val").count().getSingleResultAndClose();
         
 # SELECT col_0, col_1 FROM table WHERE ... ... ORDER BY col_2 ASC col_1 ASC
 
