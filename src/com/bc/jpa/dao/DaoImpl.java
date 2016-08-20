@@ -76,7 +76,13 @@ public class DaoImpl implements Dao {
         this.beginMethodCalled = false;
         EntityTransaction t = this.entityManager.getTransaction();
         try{
-            t.commit();
+            if (t.isActive()) {
+                if (t.getRollbackOnly()) {
+                    t.rollback();
+                } else {
+                    t.commit();
+                }
+            }
         }finally{
             if(t.isActive()) {
                 t.rollback();
