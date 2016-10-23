@@ -36,7 +36,7 @@ public interface Criteria<C extends CommonAbstractCriteria, Q extends Query, T, 
         EQUALS, NOT_EQUALS, LIKE, NOT_LIKE, GREATER_THAN, GREATER_OR_EQUALS, LESS_THAN, LESS_OR_EQUALS
     };
     
-    public static enum Connector{AND, OR};
+    public static enum LogicalOperator{AND, NOT, OR, XOR};
     
     ComparisonOperator EQUALS = ComparisonOperator.EQUALS;
     ComparisonOperator EQ = ComparisonOperator.EQUALS;
@@ -52,8 +52,10 @@ public interface Criteria<C extends CommonAbstractCriteria, Q extends Query, T, 
     ComparisonOperator LT = ComparisonOperator.LESS_THAN;
     ComparisonOperator LESS_OR_EQUALS = ComparisonOperator.LESS_OR_EQUALS;
     ComparisonOperator LTE = ComparisonOperator.LESS_OR_EQUALS;
-    Connector AND = Connector.AND;
-    Connector OR = Connector.OR;
+    LogicalOperator AND = LogicalOperator.AND;
+//    LogicalOperator NOT = LogicalOperator.NOT;
+    LogicalOperator OR = LogicalOperator.OR;
+//    LogicalOperator XOR = LogicalOperator.XOR;
     
     D from(Class entityType);
     
@@ -91,6 +93,11 @@ public interface Criteria<C extends CommonAbstractCriteria, Q extends Query, T, 
     
     D where(Class entityType, Map parameters);
 
+    D where(Criteria.ComparisonOperator comparisonOperator, Criteria.LogicalOperator connector, Map params);
+    
+    D where(Class entityType, 
+            Criteria.ComparisonOperator comparisonOperator, Criteria.LogicalOperator connector, Map params);
+    
     D where(String col, Collection values);
     
     D where(Class entityType, String col, Collection values);
@@ -103,17 +110,17 @@ public interface Criteria<C extends CommonAbstractCriteria, Q extends Query, T, 
 
     D where(String [] cols, 
             Criteria.ComparisonOperator comparisonOperator, 
-            Object val, Criteria.Connector connector);
+            Object val, Criteria.LogicalOperator connector);
     
     D where(Class entityType, String [] cols, 
             Criteria.ComparisonOperator comparisonOperator, 
-            Object val, Criteria.Connector connector);
+            Object val, Criteria.LogicalOperator connector);
 
     D where(String key, 
-            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.Connector connector);
+            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.LogicalOperator connector);
     
     D where(Class entityType, String key, 
-            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.Connector connector);
+            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.LogicalOperator connector);
 
     D join(String joinColumn, Class toType);
     

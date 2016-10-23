@@ -55,7 +55,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     
     private Predicate restriction;
     
-    private Criteria.Connector nextConnector;
+    private Criteria.LogicalOperator nextConnector;
     
     private CriteriaBuilder criteriaBuilder;
     
@@ -103,14 +103,14 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         super.clear();
 //        built = false; // Added to reset()
         currentEntityType = null;
-        criteriaBuilder = null;
-        roots.clear();
-        restriction = null;
-        currentFrom = null;
         joinFromType = null;
         joinToType = null;
+        currentFrom = null;
         join = null;
+        restriction = null;
         nextConnector = null;
+        criteriaBuilder = null;
+        roots.clear();
     }
     
     public Q format(Q q) {
@@ -184,7 +184,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         return this.connect(entityType, OR);
     }
     
-    public D connect(Class entityType, Criteria.Connector connector) {
+    public D connect(Class entityType, Criteria.LogicalOperator connector) {
         
         this.throwExceptionIfBuilt();
         
@@ -250,6 +250,37 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     }
 
     @Override
+    public D where(
+            Criteria.ComparisonOperator comparisonOperator, Criteria.LogicalOperator connector, Map params) {
+        this.throwExceptionIfNullCurrentEntityType();
+        return where(currentEntityType, comparisonOperator, connector, params);
+    }
+
+    @Override
+    public D where(Class entityType, 
+            Criteria.ComparisonOperator comparisonOperator, Criteria.LogicalOperator connector, Map params) {
+        
+        this.throwExceptionIfBuilt();
+
+        int offset = 0;
+        
+        final Set<String> cols = params.keySet();
+
+        for(String col : cols) {
+
+            Object val = params.get(col);
+
+            if(offset++ < params.size()-1) {
+                this.where(entityType, col, comparisonOperator, val, connector);
+            }else{
+                this.where(entityType, col, comparisonOperator, val);
+            }
+        }
+        
+        return (D)this;
+    }
+    
+    @Override
     public D where(String key, 
             Criteria.ComparisonOperator comparisonOperator, Object val) {
         this.throwExceptionIfNullCurrentEntityType();
@@ -260,13 +291,13 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     public D where(Class entityType, String key, 
             Criteria.ComparisonOperator comparisonOperator, Object val) {
         this.throwExceptionIfBuilt();
-        return this.where(entityType, key, comparisonOperator, val, Criteria.Connector.AND);
+        return this.where(entityType, key, comparisonOperator, val, Criteria.LogicalOperator.AND);
     }
 
     @Override
     public D where(String [] cols, 
             Criteria.ComparisonOperator comparisonOperator, 
-            Object val, Criteria.Connector connector) {
+            Object val, Criteria.LogicalOperator connector) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.where(currentEntityType, cols, comparisonOperator, val, connector);
     }
@@ -274,7 +305,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     @Override
     public D where(Class entityType, String [] cols, 
             Criteria.ComparisonOperator comparisonOperator, 
-            Object val, Criteria.Connector connector) {
+            Object val, Criteria.LogicalOperator connector) {
         this.throwExceptionIfBuilt();
         for(String col:cols) {
             this.where(entityType, col, comparisonOperator, val, connector);
@@ -284,14 +315,14 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     
     @Override
     public D where(String key, 
-            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.Connector connector) {
+            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.LogicalOperator connector) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.where(currentEntityType, key, comparisonOperator, val, connector);
     }
 
     @Override
     public D where(Class entityType, String key, 
-            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.Connector connector) {
+            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.LogicalOperator connector) {
         
         this.throwExceptionIfBuilt();
         
@@ -303,7 +334,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         
         return this.doWhere(entityType, key, comparisonOperator, val, connector);
     }
-
+    
     @Override
     public D join(String joinColumn, Class toType) {
         this.throwExceptionIfNullCurrentEntityType();
@@ -451,7 +482,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         return this.doOrderBy(entityType, col, order);
     }
     
-    protected D doConnect(Class entityType, Criteria.Connector connector) {
+    protected D doConnect(Class entityType, Criteria.LogicalOperator connector) {
         
         this.nextConnector = connector;
         
@@ -459,7 +490,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     }
 
     protected D doWhere(Class entityType, String key, 
-            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.Connector connector) {
+            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.LogicalOperator connector) {
         
         final Level logLevel = Level.FINER;
         
@@ -598,7 +629,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
 
         // Has to be OR
         // 
-        return this.buildPredicate(cb, Criteria.Connector.OR, predicates.toArray(new Predicate[0]));
+        return this.buildPredicate(cb, Criteria.LogicalOperator.OR, predicates.toArray(new Predicate[0]));
     }
     
     private static final Object NO_DB_VALUE = new Serializable(){
@@ -681,18 +712,18 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         return predicate;
     }
         
-    public Predicate buildPredicate(CriteriaBuilder cb, Predicate p0, Criteria.Connector connector, Predicate p1) {
+    public Predicate buildPredicate(CriteriaBuilder cb, Predicate p0, Criteria.LogicalOperator connector, Predicate p1) {
 
         this.throwExceptionIfBuilt();
         
         Predicate predicate;
         
         switch(connector) {
-            case OR:
-                predicate = cb.or(p0, p1); 
-                break; 
             case AND:
                 predicate = cb.and(p0, p1); 
+                break; 
+            case OR:
+                predicate = cb.or(p0, p1); 
                 break; 
             default:
                 throw new UnsupportedOperationException("Unexpected query connector: '"+connector+"' Only 'OR' and 'AND' are currently supported");
@@ -701,7 +732,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         return predicate;
     }
     
-    public Predicate buildPredicate(CriteriaBuilder cb, Criteria.Connector connector, Predicate ...predicates) {
+    public Predicate buildPredicate(CriteriaBuilder cb, Criteria.LogicalOperator connector, Predicate ...predicates) {
 
         this.throwExceptionIfBuilt();
         
@@ -711,10 +742,10 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         
             switch(connector) {
                 case OR:
-                    predicate = cb.or(predicates); 
+                    predicate = cb.or(predicates);  
                     break; 
                 case AND:
-                    predicate = cb.and(predicates); 
+                    predicate = cb.and(predicates);  
                     break; 
                 default:
                     throw new UnsupportedOperationException("Unexpected query connector: '"+connector+"' Only 'OR' and 'AND' are currently supported");
@@ -776,9 +807,8 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     }
 
     @Override
-    public D merge(Object entity) {
-        super.merge(entity);
-        return (D)this;
+    public <R> R merge(R entity) {
+        return super.merge(entity);
     }
 
     @Override
@@ -866,7 +896,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         return join;
     }
 
-    protected final Criteria.Connector getNextConnector() {
+    protected final Criteria.LogicalOperator getNextConnector() {
         return nextConnector;
     }
     

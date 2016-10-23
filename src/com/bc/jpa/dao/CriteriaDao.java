@@ -51,9 +51,6 @@ public interface CriteriaDao<C extends CommonAbstractCriteria, Q extends Query, 
     D remove(Object entity);
 
     @Override
-    D merge(Object entity);
-
-    @Override
     D persist(Object entity);
 
 //    @Override

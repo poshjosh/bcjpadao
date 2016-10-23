@@ -33,8 +33,10 @@ public interface Dao extends AutoCloseable {
     boolean isOpen();
     
     Dao persist(Object entity);
+    
+    void persistAndClose(Object entity);
 
-    Dao merge(Object entity);
+    <R> R merge(R entity);
     
     <R> R mergeAndClose(R entity);
 

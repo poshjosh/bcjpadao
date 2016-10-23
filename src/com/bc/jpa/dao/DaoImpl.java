@@ -62,7 +62,9 @@ public class DaoImpl implements Dao {
         return new BuilderForDeleteImpl(this.entityManager, entityType, this.databaseFormat);
     }
     
-    protected void clear() { }
+    protected void clear() { 
+        this.beginMethodCalled = false;
+    }
     
     @Override
     public Dao begin() {
@@ -105,11 +107,22 @@ public class DaoImpl implements Dao {
         entityManager.persist(entity);
         return (Dao)this;
     }
+    
+    @Override
+    public void persistAndClose(Object entity) {
+        try{
+            entityManager.persist(entity);
+            if(this.isBeginMethodCalled()) { 
+                this.commit();
+            }
+        }finally{
+            this.close();
+        }
+    }
 
     @Override
-    public Dao merge(Object entity) {
-        entityManager.merge(entity);
-        return (Dao)this;
+    public <R> R merge(R entity) {
+        return entityManager.merge(entity);
     }
 
     @Override
