@@ -19,7 +19,6 @@ package com.bc.jpa.dao;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -85,11 +84,6 @@ public class BuilderForUpdateImpl<T>
         this.criteriaUpdate.set(col, value);
 //        this.getCriteriaBuilder().nullLiteral(entityType);
         return this;
-    }
-
-    @Override
-    protected void doOrderBy(Order order) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

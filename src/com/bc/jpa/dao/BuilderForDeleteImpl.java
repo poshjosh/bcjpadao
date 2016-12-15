@@ -72,11 +72,6 @@ public class BuilderForDeleteImpl<T>
     }
 
     @Override
-    protected void doOrderBy(Order order) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     protected Root doFrom(Class entityClass) {
         return this.criteriaDelete.from(entityClass);
     }

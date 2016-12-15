@@ -133,11 +133,6 @@ public class BuilderForSelectImpl<T>
     }
     
     @Override
-    protected void doOrderBy(Order order) {
-        this.criteriaQuery.orderBy(order);
-    }
-
-    @Override
     protected Root doFrom(Class entityClass) {
         return this.criteriaQuery.from(entityClass);
     }
@@ -147,6 +142,10 @@ public class BuilderForSelectImpl<T>
         Predicate restriction = this.getRestriction();
         if(restriction != null) {
             criteriaQuery.where(restriction);
+        }
+        List<Order> orders = this.getOrders();
+        if(orders != null && !orders.isEmpty()) {
+            criteriaQuery.orderBy(orders);
         }
         return criteriaQuery;
     }

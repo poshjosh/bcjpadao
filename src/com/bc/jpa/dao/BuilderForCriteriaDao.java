@@ -3,7 +3,9 @@ package com.bc.jpa.dao;
 import static com.bc.jpa.dao.Criteria.AND;
 import static com.bc.jpa.dao.Criteria.OR;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -63,6 +65,8 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     
     private final Map<Class, Root> roots;
     
+    private List<Order> orders;
+    
     public BuilderForCriteriaDao(EntityManager em) {
         this(em, null, null);
     }
@@ -85,8 +89,6 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     protected abstract C doBuild();
     
     protected abstract Q doCreateQuery(C c);
-    
-    protected abstract void doOrderBy(Order order);
     
     protected abstract Root doFrom(Class entityClass);
 
@@ -438,12 +440,12 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         
         this.throwExceptionIfBuilt();
         
-        Map orders = new LinkedHashMap(cols.length, 1.0f);
+        Map<String, String> ordersMap = new LinkedHashMap<>(cols.length, 1.0f);
         for(String col:cols) {
-            orders.put(col, order);
+            ordersMap.put(col, order);
         }
         
-        return (D)this.orderBy(entityType, orders);
+        return (D)this.orderBy(entityType, ordersMap);
     }
 
     @Override
@@ -478,7 +480,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         }
         
         this.currentEntityType = entityType;
-        
+
         return this.doOrderBy(entityType, col, order);
     }
     
@@ -542,7 +544,10 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
             throw new UnsupportedOperationException("Unexpected order value: "+orderString+", only values: DESC and ASC are supported");
         }
         
-        this.doOrderBy(order);
+        if(orders == null) {
+            orders = new ArrayList<>();
+        }
+        orders.add(order);
         
         return (D)this;
     }
@@ -876,14 +881,18 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         return roots;
     }
 
-    protected final Predicate getRestriction() {
-        return restriction;
-    }
-
     protected final From getCurrentFrom() {
         return currentFrom;
     }
 
+    protected final Predicate getRestriction() {
+        return restriction;
+    }
+    
+    protected final List<Order> getOrders() {
+        return orders == null ? Collections.EMPTY_LIST : orders;
+    }
+    
     protected final Class getJoinFromType() {
         return joinFromType;
     }
