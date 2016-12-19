@@ -26,6 +26,8 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.Attribute;
+import javax.persistence.metamodel.Bindable;
 
 /**
  * @author Chinomso Bassey Ikwuagwu on Aug 17, 2016 6:21:58 PM
@@ -379,7 +381,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         
         this.throwExceptionIfBuilt();
         
-        if(joinColumn == null || joinType == null || toType == null) {
+        if(fromType == null || joinColumn == null || joinType == null || toType == null) {
             throw new NullPointerException();
         }
         
@@ -522,7 +524,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     protected D doJoin(Class fromType, String joinColumn, JoinType joinType, Class toType) {
         
         From root = this.from(fromType, true);
-        
+
         this.join = root.join(joinColumn, joinType);
         
         this.joinFromType = fromType;
@@ -571,10 +573,6 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         if(joinToType == entityClass) {
             
             output = join;
-            
-        }else if(this.currentEntityType == entityClass && this.currentFrom != null) {
-            
-            output = currentFrom;
             
         }else{
             
@@ -907,6 +905,25 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
 
     protected final Criteria.LogicalOperator getNextConnector() {
         return nextConnector;
+    }
+    
+    protected void appendJoin(StringBuilder builder, Join j) {
+        Attribute a = j.getAttribute();
+        String aName = a == null ? null : a.getName();
+        Class aJavaType = a == null ? null : a.getJavaType();
+        builder.append("Alias: " + j.getAlias() + ", Attribute#name: " + aName + ", Attribute#javaType" + aJavaType + ", JavaType: " + j.getJavaType());
+        this.appendModel(builder.append(", "), j.getModel());
+        builder.append("On: " + j.getOn());
+    }
+
+    protected void appendFrom(StringBuilder builder, From f) {
+        builder.append("Alias: " + f.getAlias() + ", JavaType: " + f.getJavaType());
+        this.appendModel(builder.append(", "), f.getModel());
+    }
+    
+    protected void appendModel(StringBuilder builder, Bindable b) {
+        Class bjt = b == null ? null : b.getBindableJavaType();
+        builder.append("Model#bindableJavaType: "+bjt);
     }
     
     @Override
