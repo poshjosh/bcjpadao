@@ -42,12 +42,20 @@ public interface Dao extends AutoCloseable {
 
     Dao remove(Object entity);
     
+    <R> R find(Class<R> entityClass, Object primaryKey);
+    
     <R> R findAndClose(Class<R> entityClass, Object primaryKey);
+    
+    <R> R find(Class<R> entityClass, Object primaryKey, Map<String, Object> properties);
     
     <R> R findAndClose(Class<R> entityClass, Object primaryKey, Map<String, Object> properties);
     
+    <R> R find(Class<R> entityClass, Object primaryKey, LockModeType lockMode);
+    
     <R> R findAndClose(Class<R> entityClass, Object primaryKey, LockModeType lockMode);
 
+    <R> R find(Class<R> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties);    
+    
     <R> R findAndClose(Class<R> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties);    
     
     Dao detach(Object entity);

@@ -12,7 +12,7 @@ import javax.persistence.LockModeType;
  */
 public class DaoImpl implements Dao {
 
-    private transient final Logger logger = Logger.getLogger(DaoImpl.class.getName());
+    private transient static final Logger logger = Logger.getLogger(DaoImpl.class.getName());
 
     private final EntityManager entityManager;
     
@@ -145,55 +145,70 @@ public class DaoImpl implements Dao {
     }
     
     @Override
+    public <R> R find(Class<R> entityClass, Object primaryKey) {
+        R result = entityManager.find(entityClass, primaryKey);
+        return this.commitIfBeginMethodCalled(result);
+    }
+    
+    @Override
     public <R> R findAndClose(Class<R> entityClass, Object primaryKey) {
         try{
-            R result = entityManager.find(entityClass, primaryKey);
-            if(this.isBeginMethodCalled()) {
-                this.commit();
-            }
-            return result;
+            return this.find(entityClass, primaryKey);
         }finally{
             this.close();
         }
+    }
+    
+    @Override
+    public <R> R find(Class<R> entityClass, Object primaryKey, Map<String, Object> properties) {
+        R result = entityManager.find(entityClass, primaryKey, properties);
+        return this.commitIfBeginMethodCalled(result);
     }
     
     @Override
     public <R> R findAndClose(Class<R> entityClass, Object primaryKey, Map<String, Object> properties) {
         try{
-            R result = entityManager.find(entityClass, primaryKey, properties);
-            if(this.isBeginMethodCalled()) {
-                this.commit();
-            }
-            return result;
+            return this.find(entityClass, primaryKey, properties);
         }finally{
             this.close();
         }
     }
     
+    @Override
+    public <R> R find(Class<R> entityClass, Object primaryKey, LockModeType lockMode) {
+        R result = entityManager.find(entityClass, primaryKey, lockMode);
+        return this.commitIfBeginMethodCalled(result);
+    }
+
     @Override
     public <R> R findAndClose(Class<R> entityClass, Object primaryKey, LockModeType lockMode) {
         try{
-            R result = entityManager.find(entityClass, primaryKey, lockMode);
-            if(this.isBeginMethodCalled()) {
-                this.commit();
-            }
-            return result;
+            return this.find(entityClass, primaryKey, lockMode);
         }finally{
             this.close();
         }
     }
     
     @Override
+    public <R> R find(Class<R> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
+        R result = entityManager.find(entityClass, primaryKey, lockMode, properties);
+        return this.commitIfBeginMethodCalled(result);
+    }
+
+    @Override
     public <R> R findAndClose(Class<R> entityClass, Object primaryKey, LockModeType lockMode, Map<String, Object> properties) {
         try{
-            R result = entityManager.find(entityClass, primaryKey, lockMode, properties);
-            if(this.isBeginMethodCalled()) {
-                this.commit();
-            }
-            return result;
+            return this.find(entityClass, primaryKey, lockMode, properties);
         }finally{
             this.close();
         }
+    }
+    
+    private <R> R commitIfBeginMethodCalled(R result) {
+        if(this.isBeginMethodCalled()) {
+            this.commit();
+        }
+        return result;
     }
 
     @Override
