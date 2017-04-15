@@ -18,7 +18,6 @@ package com.bc.jpa.dao;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -88,5 +87,10 @@ public class BuilderForDeleteImpl<T>
     @Override
     protected Query doCreateQuery(CriteriaDelete<T> criteriaDelete) {
         return this.getEntityManager().createQuery(criteriaDelete);
+    }
+
+    @Override
+    public final CriteriaDelete getCriteriaDelete() {
+        return criteriaDelete;
     }
 }

@@ -19,6 +19,7 @@ package com.bc.jpa.dao;
 import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.criteria.CommonAbstractCriteria;
+import javax.persistence.criteria.CriteriaBuilder;
 
 /**
  * @param <C> The type of output produced by the {@link #build() builder()}  
@@ -34,6 +35,8 @@ public interface CriteriaDao<C extends CommonAbstractCriteria, Q extends Query, 
     
     Criteria<C, Q, T, D> getCriteria();
     
+    CriteriaBuilder getCriteriaBuilder();
+    
     C build();
     
     Q createQuery();
@@ -43,7 +46,7 @@ public interface CriteriaDao<C extends CommonAbstractCriteria, Q extends Query, 
     Class<T> getResultType();
     
     Set<Class> getEntityTypes();
-
+    
     @Override
     D detach(Object entity);
 

@@ -2,10 +2,14 @@ package com.bc.jpa.dao;
 
 import static com.bc.jpa.dao.Criteria.LIKE;
 import static com.bc.jpa.dao.Criteria.OR;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.TypedQuery;
@@ -28,6 +32,8 @@ public class BuilderForSelectImpl<T>
         implements BuilderForSelect<T> {
     
     private final CriteriaQuery criteriaQuery;
+    
+    private final Set<String> selectedColumns = new LinkedHashSet<>();
     
     public BuilderForSelectImpl(EntityManager em) {
         super(em);
@@ -319,7 +325,7 @@ public class BuilderForSelectImpl<T>
     
         this.throwExceptionIfBuilt();
         
-        this.criteriaQuery.distinct(b);
+        this.criteriaQuery.distinct(b); 
         
         return this;
     }
@@ -327,16 +333,48 @@ public class BuilderForSelectImpl<T>
     protected BuilderForSelect doSelect(Class fromEntityType, String... cols) {
         
         From root = this.from(fromEntityType, true);
-        
+
         if(cols.length == 1) {
-            final Selection selection = this.getPath(root, cols[0]);
-            criteriaQuery.select(selection);
+            final Selection curr = this.getPath(root, cols[0]);
+            final Selection prev = criteriaQuery.getSelection();
+            if(prev == null) {
+                criteriaQuery.select(curr);
+            }else{
+                if(prev.isCompoundSelection()) {
+                    List list = prev.getCompoundSelectionItems();
+                    list.add(curr);
+                    criteriaQuery.multiselect(list);
+                }else{
+                    criteriaQuery.multiselect(prev, curr);
+                }
+            }
+            selectedColumns.add(cols[0]);
         }else{
-            final Selection [] selections = this.getPaths(root, cols);
-            criteriaQuery.multiselect(selections);
+            final Selection [] currArr = this.getPaths(root, cols);
+            final Selection prev = criteriaQuery.getSelection();
+            if(prev == null) {
+                criteriaQuery.multiselect(currArr);
+            }else{
+                if(prev.isCompoundSelection()) {
+                    final List list = prev.getCompoundSelectionItems();
+                    list.addAll(Arrays.asList(currArr));
+                    criteriaQuery.multiselect(list);
+                }else{
+                    final Selection [] updateArr = new Selection[currArr.length + 1];
+                    updateArr[0] = prev;
+                    System.arraycopy(currArr, 0, updateArr, 1, currArr.length);
+                    criteriaQuery.multiselect(updateArr);
+                }
+            }
+            selectedColumns.addAll(Arrays.asList(cols));
         }
         
         return this;
+    }
+
+    @Override
+    public Set<String> getSelectedColumns() {
+        return Collections.unmodifiableSet(selectedColumns);
     }
 
     protected BuilderForSelect doSum(Class entityType, String... cols) {
@@ -383,6 +421,11 @@ public class BuilderForSelectImpl<T>
         Expression countExpr = getCriteriaBuilder().count(path);
         criteriaQuery.select(countExpr);
         return this;
+    }
+
+    @Override
+    public final CriteriaQuery getCriteriaQuery() {
+        return criteriaQuery;
     }
     
     @Override

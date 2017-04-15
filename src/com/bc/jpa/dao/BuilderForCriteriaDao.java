@@ -96,9 +96,13 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
 
     @Override
     public D reset() {
+        final EntityManager em = this.getEntityManager();
+        if(!em.isOpen()) {
+            throw new IllegalStateException("EntityManager is not open");
+        }
         this.clear();
         this.built = false;
-        this.criteriaBuilder = this.getEntityManager().getCriteriaBuilder();
+        this.criteriaBuilder = em.getCriteriaBuilder();
         return (D)this;
     }
     
@@ -115,6 +119,9 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         nextConnector = null;
         criteriaBuilder = null;
         roots.clear();
+        if(orders != null) {
+            orders.clear();
+        }
     }
     
     public Q format(Q q) {
@@ -135,7 +142,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
 
             this.built = true;
 
-            logger.log(Level.FINE, "#build.\n{0}", this);
+            logger.log(Level.FINER, "#build.\n{0}", this);
             
             return this.doBuild();
 
@@ -635,7 +642,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         return this.buildPredicate(cb, Criteria.LogicalOperator.OR, predicates.toArray(new Predicate[0]));
     }
     
-    private static final Object NO_DB_VALUE = new Serializable(){
+    private final Object NO_DB_VALUE = new Serializable(){
         @Override
         public String toString() {
             return "NO_DATABASE_VALUE";
@@ -714,7 +721,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         
         return predicate;
     }
-        
+    
     public Predicate buildPredicate(CriteriaBuilder cb, Predicate p0, Criteria.LogicalOperator connector, Predicate p1) {
 
         this.throwExceptionIfBuilt();
@@ -871,7 +878,8 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         return new HashSet(roots.keySet());
     }
 
-    protected final CriteriaBuilder getCriteriaBuilder() {
+    @Override
+    public final CriteriaBuilder getCriteriaBuilder() {
         return criteriaBuilder;
     }
 

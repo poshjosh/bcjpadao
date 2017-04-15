@@ -12,15 +12,15 @@ import java.util.logging.Logger;
  * terms found at http://www.looseboxes.com/legal/licenses/software.html
  */
 /**
- * Example class that wraps the execution of a {@link javax.persistence.TypedQuery} 
- * and paging the results using the provided {@linkplain #pageSize}
  * @param <T>
  * @author   chinomso bassey ikwuagwu
  * @version  2.0
  * @since    2.0
  */
 public abstract class AbstractPages<T> implements Paginated<T> {
-
+    
+    private transient final Logger logger = Logger.getLogger(AbstractPages.class.getName());
+    
     /**
      * The size determined by {@link #calculateSize()}
      */
@@ -37,17 +37,18 @@ public abstract class AbstractPages<T> implements Paginated<T> {
      * unused pages.
      */
     private List<T>[] batches;
-
+    
     public AbstractPages(int pageSize) {  
         if(pageSize < 1) {
             throw new IllegalArgumentException("For page size, expected value > 0. found: "+pageSize);
         }
         this.batchSize = pageSize;
+        logger.log(Level.FINE, "Page size: {0}", pageSize);
     }
     
-    protected abstract List<T> loadBatch(int pageNum);
-    
     protected abstract int calculateSize();
+    
+    protected abstract List<T> loadBatch(int pageNum);
     
     @Override
     public void reset() {
@@ -59,7 +60,7 @@ public abstract class AbstractPages<T> implements Paginated<T> {
     @Override
     public int getSize() {
         if(this.$_size == -1) {
-            this.$_size = calculateSize();
+            this.$_size = this.calculateSize();
         }
         return this.$_size;
     }
@@ -70,7 +71,7 @@ public abstract class AbstractPages<T> implements Paginated<T> {
         int batchIndex = PagingUtil.getBatch(index, batchSize);
         int indexInBatch = PagingUtil.getIndexInBatch(index, batchSize);
         
-        logFiner("Retreiving index {0}, batctCount: {1}, batchIndex: {2}, indexInBatch: {3}",
+        log(Level.FINE, "Retreiving index {0}, pageCount: {1}, pageIndex: {2}, indexInPage: {3}",
                 index, this.getPageCount(), batchIndex, indexInBatch);
         
         return getPage(batchIndex).get(indexInBatch);
@@ -84,8 +85,8 @@ public abstract class AbstractPages<T> implements Paginated<T> {
         
         final int numPages = this.computeNumberOfPages();
         
-        Logger.getLogger(this.getClass().getName()).log(Level.FINE, 
-                "Size: {0}, number of pages: {1}", new Object[]{this.getSize(), numPages});
+        log(Level.FINE, 
+                "Size: {0}, number of pages: {1}", this.getSize(), numPages);
         
         //@numPages. null pages == not initialized, 0 pages == initialized but empty
         //
@@ -115,8 +116,8 @@ public abstract class AbstractPages<T> implements Paginated<T> {
             
             batches = this.initPagesBuffer();
 
-            logFiner( 
-            "Initialized batches array. Total Size: {0}, batch size: {1}, number of batches: {2}", 
+            log(Level.FINE, 
+            "Initialized pages array. Total Size: {0}, page size: {1}, number of pages: {2}", 
             this.getSize(), this.getPageSize(), this.getPageCount());
 
         }
@@ -136,19 +137,19 @@ public abstract class AbstractPages<T> implements Paginated<T> {
             
             page = this.loadBatch(pageNum);
             
-            logFiner("Loaded from database. Batch {0}, size of batch: {1}",
+            log(Level.FINE, "Loaded from database. Page number {0}, size of page: {1}",
                     pageNum, page == null ? null : page.size());
             
             getBatches()[pageNum] = page;
             
         }else{
             
-            logFiner("Loaded from cache. Batch {0}, size of batch: {1}", pageNum, page.size());
+            log(Level.FINE, "Loaded from cache. Page number: {0}, size of page: {1}", pageNum, page.size());
         }
         
         if(!this.isUseCache() && previousPageNum > -1 && previousPageNum < this.getPageCount()) {
             
-            logFiner("Clearing batch at {0}", previousPageNum);
+            logger.log(Level.FINE, "Clearing page at {0}", previousPageNum);
 
             this.getBatches()[previousPageNum] = null;
             
@@ -175,29 +176,22 @@ public abstract class AbstractPages<T> implements Paginated<T> {
     public int getPreviousPage() {
         return previousPageNum;
     }
-    
-    private void logFiner(String fmt, Object arg) {
-        Logger.getLogger(this.getClass().getName()).log(Level.FINER, fmt, arg);
-    }
-    
-    private void logFiner(String fmt, Object arg0, Object arg1) {
-        Logger logger = Logger.getLogger(this.getClass().getName());
-        if(logger.isLoggable(Level.FINER)) {
-            logger.log(Level.FINER, fmt, new Object[]{arg0, arg1});
+
+    private void log(Level level, String fmt, Object arg0, Object arg1) {
+        if(logger.isLoggable(level)) {
+            logger.log(level, fmt, new Object[]{arg0, arg1});
         }
     }
 
-    private void logFiner(String fmt, Object arg0, Object arg1, Object arg2) {
-        Logger logger = Logger.getLogger(this.getClass().getName());
-        if(logger.isLoggable(Level.FINER)) {
-            logger.log(Level.FINER, fmt, new Object[]{arg0, arg1, arg2});
+    private void log(Level level, String fmt, Object arg0, Object arg1, Object arg2) {
+        if(logger.isLoggable(level)) {
+            logger.log(level, fmt, new Object[]{arg0, arg1, arg2});
         }
     }
     
-    private void logFiner(String fmt, Object arg0, Object arg1, Object arg2, Object arg3) {
-        Logger logger = Logger.getLogger(this.getClass().getName());
-        if(logger.isLoggable(Level.FINER)) {
-            logger.log(Level.FINER, fmt, new Object[]{arg0, arg1, arg2, arg3});
+    private void log(Level level, String fmt, Object arg0, Object arg1, Object arg2, Object arg3) {
+        if(logger.isLoggable(level)) {
+            logger.log(level, fmt, new Object[]{arg0, arg1, arg2, arg3});
         }
     }
 }

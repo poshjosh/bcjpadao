@@ -104,4 +104,9 @@ public class BuilderForUpdateImpl<T>
     protected Query doCreateQuery(CriteriaUpdate<T> criteriaUpdate) {
         return this.getEntityManager().createQuery(criteriaUpdate);
     }
+
+    @Override
+    public CriteriaUpdate getCriteriaUpdate() {
+        return criteriaUpdate;
+    }
 }

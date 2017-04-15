@@ -18,6 +18,7 @@ package com.bc.jpa.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.LockModeType;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
@@ -28,6 +29,8 @@ import javax.persistence.criteria.CriteriaQuery;
  */
 public interface SelectDao<T> 
         extends CriteriaDao<CriteriaQuery<T>, TypedQuery<T>, T, BuilderForSelect<T>> {
+    
+    Set<String> getSelectedColumns();
     
     @Override
     CriteriaForSelect<T> getCriteria();

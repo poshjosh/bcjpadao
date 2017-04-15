@@ -68,7 +68,8 @@ public class DaoImpl implements Dao {
     
     @Override
     public Dao begin() {
-        this.entityManager.getTransaction().begin();
+        final EntityTransaction t = this.entityManager.getTransaction();
+        t.begin();
         this.beginMethodCalled = true;
         return (Dao)this;
     }

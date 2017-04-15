@@ -2,10 +2,10 @@ package com.bc.jpa.search;
 
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.TypedQuery;
 import com.bc.jpa.paging.PaginatedList;
 import com.bc.jpa.paging.PaginatedListImpl;
 import com.bc.jpa.paging.QueryResultPages;
+import javax.persistence.Query;
 
 /**
  * @(#)AbstractSearchResults.java   11-Apr-2015 08:28:48
@@ -43,18 +43,18 @@ public class QuerySearchResults<T>
     
     private final boolean useCache;
 
-    public QuerySearchResults(TypedQuery typedQuery) { 
-        super(typedQuery);
+    public QuerySearchResults(Query query) { 
+        super(query);
         this.useCache = true;
     }
 
-    public QuerySearchResults(TypedQuery typedQuery, int batchSize) {
-        super(typedQuery, batchSize);
+    public QuerySearchResults(Query query, int batchSize) {
+        super(query, batchSize);
         this.useCache = true;
     }
     
-    public QuerySearchResults(TypedQuery typedQuery, int batchSize, boolean useCache) {
-        super(typedQuery, batchSize);
+    public QuerySearchResults(Query query, int batchSize, boolean useCache) {
+        super(query, batchSize);
         this.useCache = useCache;
     }
 

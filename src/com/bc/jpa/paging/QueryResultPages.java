@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.Parameter;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.eclipse.persistence.jpa.JpaHelper;
@@ -28,7 +29,7 @@ import org.eclipse.persistence.queries.ReportQuery;
 
 /**
  * <p>
- * Example class that wraps the execution of a {@link javax.persistence.TypedQuery} 
+ * Example class that wraps the execution of a {@link javax.persistence.Query} 
  * calculating the current size and then paging the results using the provided 
  * page size.
  * </p>
@@ -45,26 +46,32 @@ import org.eclipse.persistence.queries.ReportQuery;
  * @param <T>
  * @author dclarke
  * @since EclipseLink 2.3.1
+ * @update 
+ * <code><pre>
+ *      if(raq.isDistinctComputed()) {
+            rq.setDistinctState(raq.getDistinctState());
+        }
+ * </pre></code>
  */
 public class QueryResultPages<T> extends AbstractPages<T> {
 
-    private transient final TypedQuery typedQuery;
+    private transient final Query query;
 
-    public QueryResultPages(TypedQuery<T> typedQuery) {  
-        this(typedQuery, 20);
+    public QueryResultPages(Query query) {  
+        this(query, 20);
     }
     
-    public QueryResultPages(TypedQuery<T> typedQuery, int pageSize) {  
+    public QueryResultPages(Query query, int pageSize) {  
         super(pageSize);
-        this.typedQuery = Objects.requireNonNull(typedQuery);
+        this.query = Objects.requireNonNull(query);
     }
     
     @Override
     protected List<T> loadBatch(int pageNum) {
         final int batchSize = this.getPageSize();
-        typedQuery.setFirstResult(batchSize * pageNum);
-        typedQuery.setMaxResults(batchSize);
-        return typedQuery.getResultList();
+        query.setFirstResult(batchSize * pageNum);
+        query.setMaxResults(batchSize);
+        return query.getResultList();
     }
     
     /**
@@ -86,12 +93,12 @@ public class QueryResultPages<T> extends AbstractPages<T> {
     @Override
     protected int calculateSize() {
         
-        if(typedQuery == null) {
+        if(query == null) {
             throw new NullPointerException();
         }
         
-        JpaQuery<T> queryImpl = (JpaQuery<T>)typedQuery;
-        ReadAllQuery raq = JpaHelper.getReadAllQuery(typedQuery);
+        JpaQuery<T> queryImpl = (JpaQuery<T>)query;
+        ReadAllQuery raq = JpaHelper.getReadAllQuery(query);
 
         ReportQuery rq;
 
@@ -108,6 +115,11 @@ public class QueryResultPages<T> extends AbstractPages<T> {
             rq.setShouldReturnSingleValue(true);
             rq.setSelectionCriteria(raq.getSelectionCriteria());
         }
+
+        if(raq.isDistinctComputed()) {
+            rq.setDistinctState(raq.getDistinctState());
+        }
+        
         // Wrap new report query as JPA query for execution with parameters
         TypedQuery<Number> countQuery = (TypedQuery<Number>) JpaHelper.createQuery(rq, queryImpl.getEntityManager());
 
@@ -122,15 +134,15 @@ public class QueryResultPages<T> extends AbstractPages<T> {
 //	at com.loosedb.pu.jpa.QueryResultPages.calculateSize(QueryResultPages.java:149)
 //	at com.loosedb.pu.jpa.QueryResultPages.<init>(QueryResultPages.java:72)
 //	at com.loosedb.pu.jpa.PagingListTest.testAll(PagingListTest.java:89)
-            if(typedQuery.getParameters() != null) {
+            if(query.getParameters() != null) {
                 
                 // Copy parameters
-                Set<Parameter<?>>  params = typedQuery.getParameters();
+                Set<Parameter<?>>  params = query.getParameters();
                 
                 Logger.getLogger(this.getClass().getName()).log(Level.FINER, "Query parameters: {0}", params);
 
                 for (Parameter param : params) {
-                    countQuery.setParameter(param, typedQuery.getParameterValue(param));
+                    countQuery.setParameter(param, query.getParameterValue(param));
                 }
             }
         }catch(RuntimeException bug) { 

@@ -16,6 +16,8 @@
 
 package com.bc.jpa.dao;
 
+import javax.persistence.criteria.CriteriaDelete;
+
 /**
  * @author Chinomso Bassey Ikwuagwu on Aug 17, 2016 4:12:23 PM
  * @param <T>
@@ -23,4 +25,6 @@ package com.bc.jpa.dao;
 public interface BuilderForDelete<T> 
         extends CriteriaForDelete<T>,
         DeleteDao<T> {
+    
+    CriteriaDelete getCriteriaDelete();
 }

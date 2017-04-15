@@ -1,5 +1,6 @@
-package com.bc.jpa.paging;
+package com.bc.jpa.paging.eclipselink;
 
+import com.bc.jpa.paging.AbstractPages;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.TypedQuery;

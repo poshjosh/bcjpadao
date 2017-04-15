@@ -16,6 +16,8 @@
 
 package com.bc.jpa.dao;
 
+import javax.persistence.criteria.CriteriaUpdate;
+
 /**
  * @author Chinomso Bassey Ikwuagwu on Aug 17, 2016 5:41:42 PM
  * @param <T>
@@ -23,4 +25,6 @@ package com.bc.jpa.dao;
 public interface BuilderForUpdate<T> 
         extends CriteriaForUpdate<T>,
         UpdateDao<T> {
+    
+    CriteriaUpdate getCriteriaUpdate();
 }
