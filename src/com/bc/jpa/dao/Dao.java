@@ -42,6 +42,8 @@ public interface Dao extends AutoCloseable {
 
     Dao remove(Object entity);
     
+    void removeAndClose(Object entity);
+    
     <R> R find(Class<R> entityClass, Object primaryKey);
     
     <R> R findAndClose(Class<R> entityClass, Object primaryKey);

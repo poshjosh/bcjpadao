@@ -146,6 +146,18 @@ public class DaoImpl implements Dao {
     }
     
     @Override
+    public void removeAndClose(Object entity) {
+        try{
+            entityManager.remove(entity); 
+            if(this.isBeginMethodCalled()) { 
+                this.commit();
+            }
+        }finally{
+            this.close();
+        }
+    }
+    
+    @Override
     public <R> R find(Class<R> entityClass, Object primaryKey) {
         R result = entityManager.find(entityClass, primaryKey);
         return this.commitIfBeginMethodCalled(result);
