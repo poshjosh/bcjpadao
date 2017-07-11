@@ -1,11 +1,17 @@
 package com.bc.jpa.search;
 
-import java.io.Serializable;
 import java.util.List;
-import com.bc.jpa.paging.PaginatedList;
-import com.bc.jpa.paging.PaginatedListImpl;
-import com.bc.jpa.paging.QueryResultPages;
+import java.util.Objects;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.persistence.Parameter;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import org.eclipse.persistence.jpa.JpaHelper;
+import org.eclipse.persistence.jpa.JpaQuery;
+import org.eclipse.persistence.queries.ReadAllQuery;
+import org.eclipse.persistence.queries.ReportQuery;
 
 /**
  * @(#)AbstractSearchResults.java   11-Apr-2015 08:28:48
@@ -35,65 +41,109 @@ import javax.persistence.Query;
  * @version  2.0
  * @since    2.0
  */
-public class QuerySearchResults<T> 
-        extends QueryResultPages<T>
-        implements Serializable, SearchResults<T> {
+public class QuerySearchResults<T> extends AbstractSearchResults<T> {
 
-    private int pageNumber;
+    private transient final Query query;
     
-    private final boolean useCache;
-
-    public QuerySearchResults(Query query) { 
-        super(query);
-        this.useCache = true;
+    public QuerySearchResults(Query query) {
+        this(query, 20);
     }
-
+    
     public QuerySearchResults(Query query, int batchSize) {
-        super(query, batchSize);
-        this.useCache = true;
+        this(query, batchSize, true);
     }
-    
+
     public QuerySearchResults(Query query, int batchSize, boolean useCache) {
-        super(query, batchSize);
-        this.useCache = useCache;
+        super(batchSize, useCache);
+        this.query = Objects.requireNonNull(query);
     }
 
     @Override
-    public void reset() {
-        super.reset(); 
-        this.pageNumber = 0;
+    protected List<T> loadBatch(int pageNum) {
+        final int batchSize = this.getPageSize();
+        query.setFirstResult(batchSize * pageNum);
+        query.setMaxResults(batchSize);
+        return query.getResultList();
     }
     
+    /**
+     * <p>
+     * Using the provided {@link TypedQuery} to calculate the size. The query is
+     * copied to create a new query which just retrieves the count.
+     * </p>
+     * <b>Notes:</b>
+     * <ul>
+     * <li>The query should contain an ORDER BY</li> 
+     * <li>The following methods must not have been called on the query:<br/>
+     * {@link javax.persistence.TypedQuery#setFirstResult(int)}<br/> 
+     * {@link javax.persistence.TypedQuery#setMaxResults(int)}
+     * </li>
+     * </ul>
+     * @return 
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public PaginatedList<T> getPages() {
-        return new PaginatedListImpl(this);
-    }
-    
-    @Override
-    public final boolean isUseCache() {
-        return this.useCache;
-    }
-
-    @Override
-    public List<T> getPage() {
-        return getCurrentPage();
-    }
-    
-    @Override
-    public List<T> getCurrentPage() {
-        return getPage(pageNumber);
-    }
-
-    @Override
-    public int getPageNumber() {
-        return pageNumber;
-    }
-
-    @Override
-    public void setPageNumber(int pageNumber) {
-        if(pageNumber > this.getPageCount()-1) {
-            throw new ArrayIndexOutOfBoundsException(pageNumber+" >= "+this.getPageCount());
+    protected int calculateSize() {
+        
+        if(query == null) {
+            throw new NullPointerException();
         }
-        this.pageNumber = pageNumber;
+        
+        JpaQuery<T> queryImpl = (JpaQuery<T>)query;
+        ReadAllQuery raq = JpaHelper.getReadAllQuery(query);
+
+        ReportQuery rq;
+
+        if (raq.isReportQuery()) {
+            rq = (ReportQuery) raq.clone();
+            rq.getItems().clear();
+            rq.addCount();
+            rq.getGroupByExpressions().clear();
+            rq.getOrderByExpressions().clear();
+        } else {
+            rq = new ReportQuery();
+            rq.setReferenceClass(raq.getReferenceClass());
+            rq.addCount();
+            rq.setShouldReturnSingleValue(true);
+            rq.setSelectionCriteria(raq.getSelectionCriteria());
+        }
+
+        if(raq.isDistinctComputed()) {
+            rq.setDistinctState(raq.getDistinctState());
+        }
+        
+        // Wrap new report query as JPA query for execution with parameters
+        TypedQuery<Number> countQuery = (TypedQuery<Number>) JpaHelper.createQuery(rq, queryImpl.getEntityManager());
+
+        try{
+// Temporary solution = Rather than use Query of type: 'SELECT p FROM User p', explicitly name the columns of the entity this way: 'SELECT p.name, p.age, p.height...etc FROM Person p'
+            
+//This first line is used in the bug title below... all changes be reflected below            
+//@bug QueryResultPages#calculateSize(TypedQuery) TypedQuery.getParameters throws NullpointerException            
+//query.getParameters() often throws the below exception
+//java.lang.NullPointerException
+//	at org.eclipse.persistence.internal.jpa.EJBQueryImpl.getParameters(EJBQueryImpl.java:1442)
+//	at com.loosedb.pu.jpa.QueryResultPages.calculateSize(QueryResultPages.java:149)
+//	at com.loosedb.pu.jpa.QueryResultPages.<init>(QueryResultPages.java:72)
+//	at com.loosedb.pu.jpa.PagingListTest.testAll(PagingListTest.java:89)
+            if(query.getParameters() != null) {
+                
+                // Copy parameters
+                Set<Parameter<?>>  params = query.getParameters();
+                
+                Logger.getLogger(this.getClass().getName()).log(Level.FINER, "Query parameters: {0}", params);
+
+                for (Parameter param : params) {
+                    countQuery.setParameter(param, query.getParameterValue(param));
+                }
+            }
+        }catch(RuntimeException bug) { 
+            StringBuilder builder = new StringBuilder();
+            builder.append("This is a bug. Search for '@bug QueryResultPages' to locate.\n");
+            builder.append("Temporary solution = Rather than use Query of type: 'SELECT p FROM User p', explicitly name the columns of the entity this way: 'SELECT p.name, p.age, p.height...etc FROM Person p'");
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, builder.toString(), bug);
+        }
+
+        return countQuery.getSingleResult().intValue();
     }
 }

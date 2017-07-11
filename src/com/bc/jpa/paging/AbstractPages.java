@@ -71,7 +71,7 @@ public abstract class AbstractPages<T> implements Paginated<T> {
         int batchIndex = PagingUtil.getBatch(index, batchSize);
         int indexInBatch = PagingUtil.getIndexInBatch(index, batchSize);
         
-        log(Level.FINE, "Retreiving index {0}, pageCount: {1}, pageIndex: {2}, indexInPage: {3}",
+        log(Level.FINER, "Retreiving index {0}, pageCount: {1}, pageIndex: {2}, indexInPage: {3}",
                 index, this.getPageCount(), batchIndex, indexInBatch);
         
         return getPage(batchIndex).get(indexInBatch);
@@ -137,14 +137,14 @@ public abstract class AbstractPages<T> implements Paginated<T> {
             
             page = this.loadBatch(pageNum);
             
-            log(Level.FINE, "Loaded from database. Page number {0}, size of page: {1}",
+            log(Level.FINER, "Loaded from database. Page number {0}, size of page: {1}",
                     pageNum, page == null ? null : page.size());
             
             getBatches()[pageNum] = page;
             
         }else{
             
-            log(Level.FINE, "Loaded from cache. Page number: {0}, size of page: {1}", pageNum, page.size());
+            log(Level.FINER, "Loaded from cache. Page number: {0}, size of page: {1}", pageNum, page.size());
         }
         
         if(!this.isUseCache() && previousPageNum > -1 && previousPageNum < this.getPageCount()) {

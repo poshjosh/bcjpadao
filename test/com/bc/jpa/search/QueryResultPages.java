@@ -1,4 +1,4 @@
-package com.bc.jpa.paging;
+package com.bc.jpa.search;
 
 /*******************************************************************************
  * Copyright (c) 2011 Oracle. All rights reserved.
@@ -12,6 +12,7 @@ package com.bc.jpa.paging;
  * Contributors:
  * 		dclarke - Bug 370875 - Paging List Example
  ******************************************************************************/
+import com.bc.jpa.paging.AbstractPages;
 import java.util.List;
 import java.util.Objects;
 

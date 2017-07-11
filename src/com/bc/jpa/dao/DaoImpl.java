@@ -112,6 +112,9 @@ public class DaoImpl implements Dao {
     @Override
     public void persistAndClose(Object entity) {
         try{
+            if(!this.isBeginMethodCalled()) {
+                this.begin();
+            }
             entityManager.persist(entity);
             if(this.isBeginMethodCalled()) { 
                 this.commit();
@@ -129,6 +132,9 @@ public class DaoImpl implements Dao {
     @Override
     public <R> R mergeAndClose(R entity) {
         try{
+            if(!this.isBeginMethodCalled()) {
+                this.begin();
+            }
             R result = entityManager.merge(entity);
             if(this.isBeginMethodCalled()) { 
                 this.commit();
@@ -148,6 +154,9 @@ public class DaoImpl implements Dao {
     @Override
     public void removeAndClose(Object entity) {
         try{
+            if(!this.isBeginMethodCalled()) {
+                this.begin();
+            }
             entityManager.remove(entity); 
             if(this.isBeginMethodCalled()) { 
                 this.commit();

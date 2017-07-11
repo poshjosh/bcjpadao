@@ -63,6 +63,9 @@ public class BuilderForSelectImpl<T>
     @Override
     public T getSingleResultAndClose() {
         try{
+            if(!this.isBeginMethodCalled()) {
+                this.begin();
+            }
             final T result = this.getSingleResult();
             if(this.isBeginMethodCalled()) {
                 this.commit();
@@ -92,6 +95,9 @@ public class BuilderForSelectImpl<T>
     @Override
     public List<T> getResultsAndClose(int firstResult, int maxResults) {
         try{
+            if(!this.isBeginMethodCalled()) {
+                this.begin();
+            }
             final List<T> result = this.getResultList(firstResult, maxResults);
             if(this.isBeginMethodCalled()) {
                 this.commit();
