@@ -30,17 +30,19 @@ public abstract class AbstractSearchResults<T> extends AbstractPages<T>
 
     private int pageNumber;
     
-    private final boolean useCache;
-
     public AbstractSearchResults(int batchSize) {
-        this(batchSize, true);
+        super(batchSize, true);
     }
     
     public AbstractSearchResults(int batchSize, boolean useCache) {
-        super(batchSize);
-        this.useCache = useCache;
+        super(batchSize, useCache);
     }
 
+    /**
+     * This sets the current results to null and eventually causes a fresh set 
+     * of results to be re-loaded from the database. Size will be re-calculated.
+     * Pagination starts from the first page.
+     */
     @Override
     public void reset() {
         super.reset(); 
@@ -52,11 +54,6 @@ public abstract class AbstractSearchResults<T> extends AbstractPages<T>
         return new PaginatedListImpl(this);
     }
     
-    @Override
-    public final boolean isUseCache() {
-        return this.useCache;
-    }
-
     @Override
     public List<T> getPage() {
         return getCurrentPage();

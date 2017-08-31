@@ -40,21 +40,16 @@ public class QuerySearchResultsOld<T>
 
     private int pageNumber;
     
-    private final boolean useCache;
-
     public QuerySearchResultsOld(Query query) { 
-        super(query);
-        this.useCache = true;
+        this(query, 20);
     }
 
     public QuerySearchResultsOld(Query query, int batchSize) {
-        super(query, batchSize);
-        this.useCache = true;
+        this(query, batchSize, true);
     }
     
     public QuerySearchResultsOld(Query query, int batchSize, boolean useCache) {
-        super(query, batchSize);
-        this.useCache = useCache;
+        super(query, batchSize, useCache);
     }
 
     @Override
@@ -68,11 +63,6 @@ public class QuerySearchResultsOld<T>
         return new PaginatedListImpl(this);
     }
     
-    @Override
-    public final boolean isUseCache() {
-        return this.useCache;
-    }
-
     @Override
     public List<T> getPage() {
         return getCurrentPage();

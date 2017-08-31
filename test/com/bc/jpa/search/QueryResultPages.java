@@ -63,10 +63,14 @@ public class QueryResultPages<T> extends AbstractPages<T> {
     }
     
     public QueryResultPages(Query query, int pageSize) {  
-        super(pageSize);
-        this.query = Objects.requireNonNull(query);
+        this(query, pageSize, true);
     }
     
+    public QueryResultPages(Query query, int pageSize, boolean useCache) {  
+        super(pageSize, useCache);
+        this.query = Objects.requireNonNull(query);
+    }
+
     @Override
     protected List<T> loadBatch(int pageNum) {
         final int batchSize = this.getPageSize();

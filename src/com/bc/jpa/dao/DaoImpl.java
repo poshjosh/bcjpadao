@@ -28,7 +28,7 @@ public class DaoImpl implements Dao {
     public DaoImpl(EntityManager em, DatabaseFormat databaseFormat) {
         
         this.entityManager = Objects.requireNonNull(em);
-        
+
         this.databaseFormat = databaseFormat;
     }
     

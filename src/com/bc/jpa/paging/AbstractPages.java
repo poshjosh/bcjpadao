@@ -26,6 +26,8 @@ public abstract class AbstractPages<T> implements Paginated<T> {
      */
     private int $_size = -1;
     
+    private final boolean useCache;
+    
     private final int batchSize;
     
     private int previousPageNum = -1;
@@ -39,9 +41,14 @@ public abstract class AbstractPages<T> implements Paginated<T> {
     private List<T>[] batches;
     
     public AbstractPages(int pageSize) {  
+        this(pageSize, true);
+    }
+    
+    public AbstractPages(int pageSize, boolean useCache) {  
         if(pageSize < 1) {
             throw new IllegalArgumentException("For page size, expected value > 0. found: "+pageSize);
         }
+        this.useCache = useCache;
         this.batchSize = pageSize;
         logger.log(Level.FINE, "Page size: {0}", pageSize);
     }
@@ -50,11 +57,17 @@ public abstract class AbstractPages<T> implements Paginated<T> {
     
     protected abstract List<T> loadBatch(int pageNum);
     
+    /**
+     * This sets the current results to null and eventually causes a fresh set 
+     * of results to be re-loaded from the database. Size will be re-calculated
+     */
     @Override
     public void reset() {
         this.$_size = -1;
+        if(this.batches != null) {
+            this.batches = null;
+        }
         this.previousPageNum = -1;
-        this.batches = null;
     }
     
     @Override
@@ -95,16 +108,6 @@ public abstract class AbstractPages<T> implements Paginated<T> {
         return pages;
     }
     
-    @Override
-    public final int getPageSize() {
-        return this.batchSize;
-    }
-    
-    @Override
-    public int getPageCount() {
-        return getBatches().length;
-    }
-
     public List<T>[] getBatches() {
         //@numPages. null pages == not initialized, 0 pages == initialized but empty
         //
@@ -169,12 +172,18 @@ public abstract class AbstractPages<T> implements Paginated<T> {
         return PagingUtil.getBatch(size, pageSize) + (PagingUtil.getIndexInBatch(size, pageSize) > 0 ? 1 : 0);
     }
 
-    public boolean isUseCache() {
-        return true;
+    public final boolean isUseCache() {
+        return this.useCache;
     }
 
-    public int getPreviousPage() {
-        return previousPageNum;
+    @Override
+    public final int getPageSize() {
+        return this.batchSize;
+    }
+    
+    @Override
+    public int getPageCount() {
+        return getBatches().length;
     }
 
     private void log(Level level, String fmt, Object arg0, Object arg1) {

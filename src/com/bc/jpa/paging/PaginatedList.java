@@ -24,6 +24,8 @@ public interface PaginatedList<T> extends List<T>, Paginated<T> {
             
     class EmptyPaginatedList extends AbstractList implements PaginatedList {
         @Override
+        public void reset() { }
+        @Override
         public Object get(int index) {
             throw new IndexOutOfBoundsException("index <= size");
         }
@@ -35,8 +37,6 @@ public interface PaginatedList<T> extends List<T>, Paginated<T> {
         public int size() {
             return 0;
         }
-        @Override
-        public void reset() { }
         @Override
         public List getPage(int pageNum) {
             return Paginated.EMPTY_PAGES.getPage(pageNum);

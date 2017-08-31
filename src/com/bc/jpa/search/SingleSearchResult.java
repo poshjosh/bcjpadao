@@ -30,7 +30,7 @@ public class SingleSearchResult<T> implements SearchResults<T> {
     
     @Override
     public void reset() { }
-    
+
     @Override
     public T get(int index) {
         return results.get(index);
@@ -38,7 +38,7 @@ public class SingleSearchResult<T> implements SearchResults<T> {
 
     @Override
     public PaginatedList<T> getPages() {
-        return new ListPager(this.results, this.results.size());
+        return new ListPager(this.results, 1);
     }
 
     @Override

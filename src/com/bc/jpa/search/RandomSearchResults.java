@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import com.bc.jpa.paging.PaginatedList;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 
@@ -26,15 +27,22 @@ public class RandomSearchResults<T> implements SearchResults<T> {
 
     private final List<T> results;
     
+    private final int pageSize;
+    
     public RandomSearchResults(List<T> results) {
-        this.results = results;
+        this(results, 20);
+    }
+    
+    public RandomSearchResults(List<T> results, int pageSize) {
+        this.results = Objects.requireNonNull(results);
+        this.pageSize = pageSize;
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, 
                 "Random Search Results input size: {0}", results.size());
     }
     
     @Override
     public void reset() { }
-    
+
     @Override
     public T get(int index) {
         return results.get(index);
@@ -42,7 +50,7 @@ public class RandomSearchResults<T> implements SearchResults<T> {
 
     @Override
     public PaginatedList<T> getPages() {
-        return new ListPager(results, results.size());
+        return new ListPager(results, this.getPageSize());
     }
 
     @Override
@@ -98,7 +106,7 @@ public class RandomSearchResults<T> implements SearchResults<T> {
 
     @Override
     public int getPageSize() {
-        return 20;
+        return this.pageSize;
     }
 
     /**

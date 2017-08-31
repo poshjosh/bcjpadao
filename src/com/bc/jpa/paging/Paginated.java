@@ -21,7 +21,7 @@ public interface Paginated<T> {
     
     /**
      * This sets the current results to null and eventually causes a fresh set 
-     * of results to be re-loaded from the database
+     * of results to be re-loaded from the database. Size will be re-calculated
      */
     void reset();
     

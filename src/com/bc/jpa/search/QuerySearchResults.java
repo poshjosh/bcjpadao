@@ -1,6 +1,7 @@
 package com.bc.jpa.search;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
@@ -8,6 +9,7 @@ import java.util.logging.Logger;
 import javax.persistence.Parameter;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.eclipse.persistence.config.QueryHints;
 import org.eclipse.persistence.jpa.JpaHelper;
 import org.eclipse.persistence.jpa.JpaQuery;
 import org.eclipse.persistence.queries.ReadAllQuery;
@@ -60,10 +62,18 @@ public class QuerySearchResults<T> extends AbstractSearchResults<T> {
 
     @Override
     protected List<T> loadBatch(int pageNum) {
-        final int batchSize = this.getPageSize();
-        query.setFirstResult(batchSize * pageNum);
-        query.setMaxResults(batchSize);
-        return query.getResultList();
+        final Map<String, Object> hints = query.getHints();
+        final Object refresh = (hints == null) ? Boolean.FALSE : 
+                hints.get(QueryHints.REFRESH) == null ? Boolean.FALSE : hints.get(QueryHints.REFRESH);
+        try{
+            query.setHint(QueryHints.REFRESH, Boolean.TRUE);
+            final int batchSize = this.getPageSize();
+            query.setFirstResult(batchSize * pageNum);
+            query.setMaxResults(batchSize);
+            return query.getResultList();
+        }finally{
+            query.setHint(QueryHints.REFRESH, refresh);
+        }
     }
     
     /**
