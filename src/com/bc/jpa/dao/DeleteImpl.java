@@ -25,20 +25,20 @@ import javax.persistence.criteria.Root;
  * @author Chinomso Bassey Ikwuagwu on Aug 17, 2016 9:42:57 PM
  * @param <T>
  */
-public class BuilderForDeleteImpl<T> 
-        extends BuilderForCriteriaDao<CriteriaDelete<T>, Query, T, BuilderForDelete<T>> 
-        implements BuilderForDelete<T> {
+public class DeleteImpl<T> 
+        extends BuilderForCriteriaDao<CriteriaDelete<T>, Query, T, Delete<T>> 
+        implements Delete<T> {
     
     private final CriteriaDelete criteriaDelete;
 
-    public BuilderForDeleteImpl(EntityManager em, Class<T> entityType) {
-        super(em, entityType);
-        this.criteriaDelete = this.getCriteriaBuilder().createCriteriaDelete(entityType);
+    public DeleteImpl(EntityManager em, Class<T> targetEntity) {
+        super(em);
+        this.criteriaDelete = this.getCriteriaBuilder().createCriteriaDelete(targetEntity);
     }
 
-    public BuilderForDeleteImpl(EntityManager em, Class<T> entityType, DatabaseFormat databaseFormat) {
-        super(em, entityType, databaseFormat);
-        this.criteriaDelete = this.getCriteriaBuilder().createCriteriaDelete(entityType);
+    public DeleteImpl(EntityManager em, Class<T> targetEntity, DatabaseFormat databaseFormat) {
+        super(em, databaseFormat);
+        this.criteriaDelete = this.getCriteriaBuilder().createCriteriaDelete(targetEntity);
     }
 
     @Override

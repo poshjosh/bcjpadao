@@ -19,49 +19,90 @@ package com.bc.jpa.dao;
 import java.util.Collection;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.metamodel.Attribute;
 
 /**
  * @param <T>
  * @author Chinomso Bassey Ikwuagwu on Aug 17, 2016 3:35:08 PM
  */
 public interface CriteriaForSelect<T> 
-       extends Criteria<CriteriaQuery<T>, TypedQuery<T>, T, BuilderForSelect<T>> {
+       extends Criteria<CriteriaQuery<T>, TypedQuery<T>, T, Select<T>> {
     
-    BuilderForSelect<T> distinct(boolean b);
+    Select<T> distinct(boolean b);
     
-    BuilderForSelect<T> search(String query, Collection<String> cols);
+    Select<T> search(String query, Collection<String> cols);
     
-    BuilderForSelect<T> search(Class entityType, String query, Collection<String> cols);
+    Select<T> search(Class entityType, String query, Collection<String> cols);
     
-    BuilderForSelect<T> search(String query, String... cols);    
+    default Select<T> search(String query, Attribute... cols) {
+        return this.search(query, this.getAttributeNames(cols));
+    }
     
-    BuilderForSelect<T> search(Class entityType, String query, String... cols);
+    Select<T> search(String query, String... cols);    
+    
+    default Select<T> search(Class entityType, String query, Attribute... cols) {
+        return this.search(entityType, query, this.getAttributeNames(cols));
+    }
 
-    BuilderForSelect<T> select(String... cols);
-    
-    BuilderForSelect<T> select(Class fromType, String... cols);
+    Select<T> search(Class entityType, String query, String... cols);
 
-    BuilderForSelect<T> select(Collection<String> cols);
-    
-    BuilderForSelect<T> select(Class fromType, Collection<String> cols);
-    
-    BuilderForSelect<T> sum(String... cols);
-    
-    BuilderForSelect<T> sum(Class entityType, String... cols);
+    default Select<T> select(Attribute... cols) {
+        return this.select(this.getAttributeNames(cols));
+    }
 
-    BuilderForSelect<T> sum(Collection<String> cols);
+    Select<T> select(String... cols);
     
-    BuilderForSelect<T> sum(Class entityType, Collection<String> cols);
-    
-    BuilderForSelect<T> count();
-    
-    BuilderForSelect<T> count(Class entityType);
-    
-    BuilderForSelect<T> count(String col);
+    default Select<T> select(Class fromType, Attribute... cols) {
+        return this.select(fromType, this.getAttributeNames(cols));
+    }
 
-    BuilderForSelect<T> count(Class entityType, String col);
+    Select<T> select(Class fromType, String... cols);
 
-    BuilderForSelect<T> max(String col);
+    Select<T> select(Collection<String> cols);
     
-    BuilderForSelect<T> max(Class entityType, String col);
+    Select<T> select(Class fromType, Collection<String> cols);
+    
+    default Select<T> sum(Attribute... cols) {
+        return this.sum(this.getAttributeNames(cols));
+    }
+    
+    Select<T> sum(String... cols);
+    
+    default Select<T> sum(Class entityType, Attribute... cols) {
+        return this.sum(entityType, this.getAttributeNames(cols));
+    }
+    
+    Select<T> sum(Class entityType, String... cols);
+
+    Select<T> sum(Collection<String> cols);
+    
+    Select<T> sum(Class entityType, Collection<String> cols);
+    
+    Select<T> count();
+    
+    Select<T> count(Class entityType);
+    
+    default Select<T> count(Attribute col) {
+        return count(col.getName());
+    }
+
+    Select<T> count(String col);
+
+    default Select<T> count(Class entityType, Attribute col) {
+        return count(entityType, col.getName());
+    }
+    
+    Select<T> count(Class entityType, String col);
+
+    default Select<T> max(Attribute col) {
+        return max(col.getName());
+    }
+
+    Select<T> max(String col);
+
+    default Select<T> max(Class entityType, Attribute col) {
+        return max(entityType, col.getName());
+    }
+    
+    Select<T> max(Class entityType, String col);
 }

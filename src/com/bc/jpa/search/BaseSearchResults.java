@@ -38,6 +38,23 @@ public class BaseSearchResults<R> extends QuerySearchResults<R> implements AutoC
         }
     }
 
+    @Override
+    public R load(int index) {
+        
+        if(select != null) {
+
+            final R entity = this.get(index);
+
+            this.select.refresh(entity);
+            
+            return entity;
+            
+        }else{
+            
+            return super.load(index);
+        }
+    }
+
     public final SelectDao<R> getSelect() {
         return select;
     }

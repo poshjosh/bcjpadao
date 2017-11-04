@@ -24,7 +24,7 @@ import javax.persistence.criteria.CriteriaDelete;
  * @param <T>
  */
 public interface DeleteDao<T> 
-        extends CriteriaDao<CriteriaDelete<T>, Query, T, BuilderForDelete<T>> {
+        extends CriteriaDao<CriteriaDelete<T>, Query, T, Delete<T>> {
 
     @Override
     CriteriaForDelete<T> getCriteria();

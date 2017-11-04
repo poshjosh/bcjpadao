@@ -24,7 +24,7 @@ import javax.persistence.criteria.CriteriaUpdate;
  * @param <T>
  */
 public interface UpdateDao<T> 
-        extends CriteriaDao<CriteriaUpdate<T>, Query, T, BuilderForUpdate<T>> {
+        extends CriteriaDao<CriteriaUpdate<T>, Query, T, Update<T>> {
 
     @Override
     CriteriaForUpdate<T> getCriteria();

@@ -23,7 +23,7 @@ import javax.persistence.criteria.CriteriaDelete;
  * @param <T>
  */
 public interface CriteriaForDelete<T> 
-       extends Criteria<CriteriaDelete<T>, Query, T, BuilderForDelete<T>> {
+       extends Criteria<CriteriaDelete<T>, Query, T, Delete<T>> {
 
     
 }

@@ -16,7 +16,7 @@
 package com.bc.jpa.dao.eclipselink;
 
 import com.bc.jpa.dao.DatabaseFormat;
-import com.bc.jpa.dao.BuilderForSelectImpl;
+import com.bc.jpa.dao.SelectImpl;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Set;
@@ -32,17 +32,17 @@ import org.eclipse.persistence.config.QueryHints;
  * @author Chinomso Bassey Ikwuagwu on Aug 18, 2016 2:01:52 AM
  * @param <T>
  */
-public class BuilderForSelectEclipselinkOptimized<T> extends BuilderForSelectImpl<T> {
+public class SelectEclipselinkOptimized<T> extends SelectImpl<T> {
 
-    public BuilderForSelectEclipselinkOptimized(EntityManager em) {
+    public SelectEclipselinkOptimized(EntityManager em) {
         super(em);
     }
 
-    public BuilderForSelectEclipselinkOptimized(EntityManager em, Class<T> resultType) {
+    public SelectEclipselinkOptimized(EntityManager em, Class<T> resultType) {
         super(em, resultType);
     }
 
-    public BuilderForSelectEclipselinkOptimized(EntityManager em, Class<T> resultType, DatabaseFormat databaseFormat) {
+    public SelectEclipselinkOptimized(EntityManager em, Class<T> resultType, DatabaseFormat databaseFormat) {
         super(em, resultType, databaseFormat);
     }
 

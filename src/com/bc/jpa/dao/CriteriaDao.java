@@ -43,8 +43,6 @@ public interface CriteriaDao<C extends CommonAbstractCriteria, Q extends Query, 
     
     D reset();
 
-    Class<T> getResultType();
-    
     Set<Class> getEntityTypes();
     
     @Override
@@ -52,6 +50,9 @@ public interface CriteriaDao<C extends CommonAbstractCriteria, Q extends Query, 
 
     @Override
     D remove(Object entity);
+    
+    @Override
+    D refresh(Object entity);
 
     @Override
     D persist(Object entity);

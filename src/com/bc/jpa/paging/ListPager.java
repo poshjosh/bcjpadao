@@ -16,9 +16,9 @@ public class ListPager<T> extends AbstractList<T> implements PaginatedList<T> {
 
     public ListPager(List<T> list, int batchSize) {
         this.list = Objects.requireNonNull(list);
-        if(batchSize > list.size()) {
-            throw new IllegalArgumentException();
-        }
+//        if(batchSize > list.size()) {
+//            throw new IllegalArgumentException();
+//        }
         this.batchSize = batchSize;
     }
 
@@ -42,8 +42,9 @@ public class ListPager<T> extends AbstractList<T> implements PaginatedList<T> {
 
     @Override
     public List<T> getPage(int pageNum) {
-        int start = PagingUtil.getStart(pageNum, batchSize, size());
-        int end = PagingUtil.getEnd(pageNum, batchSize, size());
+        int start = PagingUtil.getStart(pageNum, batchSize, size(), true, true);
+        int end = PagingUtil.getEnd(pageNum, batchSize, size(), true, true);
+//        System.out.println("Page Number: " + pageNum + ", start: " + start + ", end: " + end + ". @" + this.getClass());
         return list.subList(start, end);
      }
 

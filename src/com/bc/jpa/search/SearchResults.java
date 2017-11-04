@@ -3,6 +3,8 @@ package com.bc.jpa.search;
 import java.util.List;
 import com.bc.jpa.paging.Paginated;
 import com.bc.jpa.paging.PaginatedList;
+import java.io.Serializable;
+import java.util.Collections;
 
 
 /**
@@ -23,6 +25,15 @@ public interface SearchResults<T> extends Paginated<T> {
     
     SearchResults EMPTY_INSTANCE = new EmptySearchResults();
     
+    List<T> loadPage(int pageNum);
+    
+    default boolean load(T result) {
+        final int index = this.getPages().indexOf(result);
+        return index == -1 ? false : this.load(index) != null;
+    }
+    
+    T load(int index);
+    
     PaginatedList<T> getPages();
     
     List<T> getCurrentPage();
@@ -36,7 +47,18 @@ public interface SearchResults<T> extends Paginated<T> {
 
     void setPageNumber(int pageNumber);
     
-    class EmptySearchResults<T> extends EmptyPages<T> implements SearchResults<T> {
+    class EmptySearchResults<T> extends EmptyPages<T> 
+            implements SearchResults<T>, Serializable {
+
+        @Override
+        public List<T> loadPage(int pageNum) { 
+            return Collections.EMPTY_LIST;
+        }
+
+        @Override
+        public T load(int index) { 
+            throw new IndexOutOfBoundsException("0 elements available. Index out of bounds: "+index);
+        }
 
         @Override
         public PaginatedList<T> getPages() {

@@ -16,15 +16,15 @@
 
 package com.bc.jpa.dao;
 
-import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.CriteriaDelete;
 
 /**
- * @author Chinomso Bassey Ikwuagwu on Aug 17, 2016 5:41:42 PM
+ * @author Chinomso Bassey Ikwuagwu on Aug 17, 2016 4:12:23 PM
  * @param <T>
  */
-public interface BuilderForUpdate<T> 
-        extends CriteriaForUpdate<T>,
-        UpdateDao<T> {
+public interface Delete<T> 
+        extends CriteriaForDelete<T>,
+        DeleteDao<T> {
     
-    CriteriaUpdate getCriteriaUpdate();
+    CriteriaDelete getCriteriaDelete();
 }

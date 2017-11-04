@@ -25,20 +25,20 @@ import javax.persistence.criteria.Root;
 /**
  * @author Chinomso Bassey Ikwuagwu on Aug 17, 2016 5:46:05 PM
  */
-public class BuilderForUpdateImpl<T> 
-        extends BuilderForCriteriaDao<CriteriaUpdate<T>, Query, T, BuilderForUpdate<T>> 
-        implements BuilderForUpdate<T> {
+public class UpdateImpl<T> 
+        extends BuilderForCriteriaDao<CriteriaUpdate<T>, Query, T, Update<T>> 
+        implements Update<T> {
     
     private final CriteriaUpdate criteriaUpdate;
 
-    public BuilderForUpdateImpl(EntityManager em, Class<T> entityType) {
-        super(em, entityType);
-        this.criteriaUpdate = this.getCriteriaBuilder().createCriteriaUpdate(entityType);
+    public UpdateImpl(EntityManager em, Class<T> targetEntity) {
+        super(em);
+        this.criteriaUpdate = this.getCriteriaBuilder().createCriteriaUpdate(targetEntity);
     }
 
-    public BuilderForUpdateImpl(EntityManager em, Class<T> entityType, DatabaseFormat databaseFormat) {
-        super(em, entityType, databaseFormat);
-        this.criteriaUpdate = this.getCriteriaBuilder().createCriteriaUpdate(entityType);
+    public UpdateImpl(EntityManager em, Class<T> targetEntity, DatabaseFormat databaseFormat) {
+        super(em, databaseFormat);
+        this.criteriaUpdate = this.getCriteriaBuilder().createCriteriaUpdate(targetEntity);
     }
 
     @Override
@@ -71,13 +71,13 @@ public class BuilderForUpdateImpl<T>
     }
     
     @Override
-    public BuilderForUpdate<T> set(String col, Object value) {
+    public Update<T> set(String col, Object value) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.set(this.getCurrentEntityType(), col, value);
     }
     
     @Override
-    public BuilderForUpdate<T> set(Class entityType, String col, Object value) {
+    public Update<T> set(Class entityType, String col, Object value) {
         this.throwExceptionIfBuilt();
         this.throwExceptionIfNull(entityType,"Invalid call to #set(Class,String,Object) method, with a null Class argument");
         this.setCurrentEntityType(entityType);

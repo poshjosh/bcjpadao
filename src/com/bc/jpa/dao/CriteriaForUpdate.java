@@ -18,15 +18,24 @@ package com.bc.jpa.dao;
 
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.metamodel.Attribute;
 
 /**
  * @author Chinomso Bassey Ikwuagwu on Aug 17, 2016 5:41:02 PM
  * @param <T>
  */
 public interface CriteriaForUpdate<T> 
-       extends Criteria<CriteriaUpdate<T>, Query, T, BuilderForUpdate<T>> {
+       extends Criteria<CriteriaUpdate<T>, Query, T, Update<T>> {
 
-    BuilderForUpdate<T> set(String col, Object value);
+    default Update<T> set(Attribute col, Object value) {
+        return this.set(col.getName(), value);
+    }
     
-    BuilderForUpdate<T> set(Class entityType, String col, Object value);    
+    Update<T> set(String col, Object value);
+    
+    default Update<T> set(Class entityType, Attribute col, Object value) {
+        return this.set(entityType, col.getName(), value);
+    }
+
+    Update<T> set(Class entityType, String col, Object value);    
 }

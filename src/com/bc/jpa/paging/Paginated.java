@@ -1,5 +1,6 @@
 package com.bc.jpa.paging;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -19,6 +20,14 @@ public interface Paginated<T> {
 
     Paginated EMPTY_PAGES = new EmptyPages();
     
+    default int getPageNumber(int index) {
+        return PagingUtil.getBatch(index, getPageSize());
+    }
+    
+    default int getIndexInPage(int index) {
+        return PagingUtil.getIndexInBatch(index, getPageSize());
+    }
+    
     /**
      * This sets the current results to null and eventually causes a fresh set 
      * of results to be re-loaded from the database. Size will be re-calculated
@@ -35,7 +44,7 @@ public interface Paginated<T> {
 
     int getPageSize();
     
-    class EmptyPages<T> implements Paginated<T> {
+    class EmptyPages<T> implements Paginated<T>, Serializable {
         @Override
         public void reset() { }
         @Override

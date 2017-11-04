@@ -80,7 +80,7 @@ public class EclipselinkScrollableCursorQueryResultPages<T> extends AbstractPage
     }
 
     @Override
-    protected List<T> loadBatch(int pageNum) {
+    public List<T> loadPage(int pageNum) {
         
         final int batchSize = this.getPageSize();
         

@@ -32,6 +32,16 @@ public class SingleSearchResult<T> implements SearchResults<T> {
     public void reset() { }
 
     @Override
+    public List<T> loadPage(int pageNum) {
+        return getPage(pageNum);
+    }
+
+    @Override
+    public T load(int index) {
+        return get(index);
+    }
+
+    @Override
     public T get(int index) {
         return results.get(index);
     }

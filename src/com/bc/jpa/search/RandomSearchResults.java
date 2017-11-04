@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import com.bc.jpa.paging.PaginatedList;
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -23,7 +24,7 @@ import java.util.logging.Logger;
  * @version  2.0
  * @since    2.0
  */
-public class RandomSearchResults<T> implements SearchResults<T> {
+public class RandomSearchResults<T> implements SearchResults<T>, Serializable {
 
     private final List<T> results;
     
@@ -42,6 +43,16 @@ public class RandomSearchResults<T> implements SearchResults<T> {
     
     @Override
     public void reset() { }
+
+    @Override
+    public List<T> loadPage(int pageNum) {
+        return this.getPage(pageNum);
+    }
+
+    @Override
+    public T load(int index) {
+        return this.get(index);
+    }
 
     @Override
     public T get(int index) {

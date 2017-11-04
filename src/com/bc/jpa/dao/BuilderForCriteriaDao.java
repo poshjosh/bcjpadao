@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,25 +62,17 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     
     private CriteriaBuilder criteriaBuilder;
     
-    private final Class<T> resultType;
-    
     private final Map<Class, Root> roots;
     
     private List<Order> orders;
     
     public BuilderForCriteriaDao(EntityManager em) {
-        this(em, null, null);
+        this(em,  null);
     }
     
-    public BuilderForCriteriaDao(EntityManager em, Class<T> resultType) {
-        this(em, resultType, null);
-    }
-    
-    public BuilderForCriteriaDao(EntityManager em, Class<T> resultType, DatabaseFormat databaseFormat) {
+    public BuilderForCriteriaDao(EntityManager em, DatabaseFormat databaseFormat) {
         
         super(em, databaseFormat);
-        
-        this.resultType = Objects.requireNonNull(resultType);
         
         this.criteriaBuilder = em.getCriteriaBuilder();
         
@@ -255,7 +246,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         this.throwExceptionIfBuilt();
         Set keys = parameters.keySet();
         for(Object key:keys) {
-            this.where(entityType, key.toString(), parameters.get(key));
+            this.where(entityType, toString(key), parameters.get(key));
         }
         return (D)this;
     }
@@ -275,16 +266,16 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
 
         int offset = 0;
         
-        final Set<String> cols = params.keySet();
+        final Set cols = params.keySet();
 
-        for(String col : cols) {
+        for(Object col : cols) {
 
             Object val = params.get(col);
 
             if(offset++ < params.size()-1) {
-                this.where(entityType, col, comparisonOperator, val, connector);
+                this.where(entityType, toString(col), comparisonOperator, val, connector);
             }else{
-                this.where(entityType, col, comparisonOperator, val);
+                this.where(entityType, toString(col), comparisonOperator, val);
             }
         }
         
@@ -817,6 +808,12 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     }
 
     @Override
+    public D refresh(Object entity) {
+        super.refresh(entity);
+        return (D)this;
+    }
+    
+    @Override
     public <R> R merge(R entity) {
         return super.merge(entity);
     }
@@ -840,6 +837,10 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     
 /////////////////////// End methods overriden for type /////////////////////////
     
+    protected String toString(Object column) {
+        return column instanceof Attribute ? ((Attribute)column).getName() : column.toString();
+    }
+    
     protected void throwExceptionIfBuilt() {
         if(this.isBuilt()) {
             throw new IllegalStateException("Operation not allowed after #build() method is called");
@@ -862,11 +863,6 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
 
     protected final Class getCurrentEntityType() {
         return currentEntityType;
-    }
-
-    @Override
-    public final Class<T> getResultType() {
-        return resultType;
     }
 
     public final boolean isBuilt() {
@@ -936,6 +932,6 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() +  "{\n  built=" + this.isBuilt() + ", resultType=" + this.getResultType() + ", where=" + restriction + ", nextConnector=" + nextConnector + "\n  roots=" + roots + '}';// + "\n  joins=" + joins + '}';
+        return this.getClass().getSimpleName() +  "{\n  built=" + this.isBuilt() + ", where=" + restriction + ", nextConnector=" + nextConnector + "\n  roots=" + roots + '}';// + "\n  joins=" + joins + '}';
     }
 }

@@ -9,17 +9,17 @@ import javax.persistence.LockModeType;
  */
 public interface Dao extends AutoCloseable {
     
-    <T> SelectDao<T> forSelect(Class<T> resultType);
+    <T> SelectDao<T> selectInstance(Class<T> resultType);
     
-    <T> UpdateDao<T> forUpdate(Class<T> entityType);
+    <T> UpdateDao<T> updateInstance(Class<T> entityType);
     
-    <T> DeleteDao<T> forDelete(Class<T> entityType);
+    <T> DeleteDao<T> deleteInstance(Class<T> entityType);
 
-    <T> BuilderForSelect<T> builderForSelect(Class<T> resultType);
+    <T> Select<T> forSelect(Class<T> resultType);
     
-    <T> BuilderForUpdate<T> builderForUpdate(Class<T> entityType);
+    <T> Update<T> forUpdate(Class<T> entityType);
     
-    <T> BuilderForDelete<T> builderForDelete(Class<T> entityType);
+    <T> Delete<T> forDelete(Class<T> entityType);
     
     EntityManager getEntityManager();
     
@@ -43,6 +43,8 @@ public interface Dao extends AutoCloseable {
     Dao remove(Object entity);
     
     void removeAndClose(Object entity);
+    
+    Dao refresh(Object entity);
     
     <R> R find(Class<R> entityClass, Object primaryKey);
     

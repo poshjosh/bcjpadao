@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import javax.persistence.Parameter;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.eclipse.persistence.config.HintValues;
 import org.eclipse.persistence.config.QueryHints;
 import org.eclipse.persistence.jpa.JpaHelper;
 import org.eclipse.persistence.jpa.JpaQuery;
@@ -61,18 +62,21 @@ public class QuerySearchResults<T> extends AbstractSearchResults<T> {
     }
 
     @Override
-    protected List<T> loadBatch(int pageNum) {
+    public List<T> loadPage(int pageNum) {
         final Map<String, Object> hints = query.getHints();
-        final Object refresh = (hints == null) ? Boolean.FALSE : 
-                hints.get(QueryHints.REFRESH) == null ? Boolean.FALSE : hints.get(QueryHints.REFRESH);
+        final Object refresh = (hints == null) ? null : hints.get(QueryHints.REFRESH);
         try{
-            query.setHint(QueryHints.REFRESH, Boolean.TRUE);
+            query.setHint(QueryHints.REFRESH, HintValues.TRUE);
             final int batchSize = this.getPageSize();
             query.setFirstResult(batchSize * pageNum);
             query.setMaxResults(batchSize);
             return query.getResultList();
         }finally{
-            query.setHint(QueryHints.REFRESH, refresh);
+            if(refresh == null) {
+                query.getHints().remove(QueryHints.REFRESH);
+            }else{
+                query.setHint(QueryHints.REFRESH, refresh);
+            }
         }
     }
     
@@ -155,5 +159,9 @@ public class QuerySearchResults<T> extends AbstractSearchResults<T> {
         }
 
         return countQuery.getSingleResult().intValue();
+    }
+
+    public final Query getQuery() {
+        return query;
     }
 }

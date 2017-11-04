@@ -55,8 +55,12 @@ public abstract class AbstractPages<T> implements Paginated<T> {
     
     protected abstract int calculateSize();
     
-    protected abstract List<T> loadBatch(int pageNum);
-    
+    public abstract List<T> loadPage(int pageNum);
+
+    public T load(int index) {
+        
+        return this.loadPage(this.getPageNumber(index)).get(this.getIndexInPage(index));
+    }
     /**
      * This sets the current results to null and eventually causes a fresh set 
      * of results to be re-loaded from the database. Size will be re-calculated
@@ -81,8 +85,8 @@ public abstract class AbstractPages<T> implements Paginated<T> {
     @Override
     public T get(int index) {
         
-        int batchIndex = PagingUtil.getBatch(index, batchSize);
-        int indexInBatch = PagingUtil.getIndexInBatch(index, batchSize);
+        final int batchIndex = this.getPageNumber(index);
+        final int indexInBatch = this.getIndexInPage(index);
         
         log(Level.FINER, "Retreiving index {0}, pageCount: {1}, pageIndex: {2}, indexInPage: {3}",
                 index, this.getPageCount(), batchIndex, indexInBatch);
@@ -138,7 +142,7 @@ public abstract class AbstractPages<T> implements Paginated<T> {
 
         if (page == null) {
             
-            page = this.loadBatch(pageNum);
+            page = this.loadPage(pageNum);
             
             log(Level.FINER, "Loaded from database. Page number {0}, size of page: {1}",
                     pageNum, page == null ? null : page.size());
@@ -165,11 +169,10 @@ public abstract class AbstractPages<T> implements Paginated<T> {
     protected final int computeNumberOfPages() {
         
         final int size = this.getSize();
-        final int pageSize = this.getPageSize();
         
         //@numPages. null pages == not initialized, 0 pages == initialized but empty
         //
-        return PagingUtil.getBatch(size, pageSize) + (PagingUtil.getIndexInBatch(size, pageSize) > 0 ? 1 : 0);
+        return this.getPageNumber(size) + (this.getIndexInPage(size) > 0 ? 1 : 0);
     }
 
     public final boolean isUseCache() {

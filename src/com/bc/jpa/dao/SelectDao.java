@@ -28,8 +28,10 @@ import javax.persistence.criteria.CriteriaQuery;
  * @param <T>
  */
 public interface SelectDao<T> 
-        extends CriteriaDao<CriteriaQuery<T>, TypedQuery<T>, T, BuilderForSelect<T>> {
+        extends CriteriaDao<CriteriaQuery<T>, TypedQuery<T>, T, Select<T>> {
     
+    Class<T> getResultType();
+
     Set<String> getSelectedColumns();
     
     @Override

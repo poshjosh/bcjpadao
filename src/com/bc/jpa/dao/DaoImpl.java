@@ -1,7 +1,9 @@
 package com.bc.jpa.dao;
 
+import com.bc.jpa.dao.functions.CommitEntityTransaction;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -18,8 +20,10 @@ public class DaoImpl implements Dao {
     
     private final DatabaseFormat databaseFormat;
     
-    private boolean beginMethodCalled;
+    private final Function<EntityTransaction, Boolean> commitTransaction;
         
+    private boolean beginMethodCalled;
+    
     public DaoImpl(EntityManager em) {
         
         this(em, null);
@@ -30,36 +34,38 @@ public class DaoImpl implements Dao {
         this.entityManager = Objects.requireNonNull(em);
 
         this.databaseFormat = databaseFormat;
+        
+        this.commitTransaction = new CommitEntityTransaction();
     }
     
     @Override
-    public <T> SelectDao<T> forSelect(Class<T> resultType) {
-        return this.builderForSelect(resultType);
+    public <T> SelectDao<T> selectInstance(Class<T> resultType) {
+        return this.forSelect(resultType);
     }
 
     @Override
-    public <T> UpdateDao<T> forUpdate(Class<T> entityType) {
-        return this.builderForUpdate(entityType);
+    public <T> UpdateDao<T> updateInstance(Class<T> entityType) {
+        return this.forUpdate(entityType);
     }
 
     @Override
-    public <T> DeleteDao<T> forDelete(Class<T> entityType) {
-        return this.builderForDelete(entityType);
+    public <T> DeleteDao<T> deleteInstance(Class<T> entityType) {
+        return this.forDelete(entityType);
     }
     
     @Override
-    public <T> BuilderForSelect<T> builderForSelect(Class<T> resultType) {
-        return new BuilderForSelectImpl(this.entityManager, resultType, this.databaseFormat);
+    public <T> Select<T> forSelect(Class<T> resultType) {
+        return new SelectImpl(this.entityManager, resultType, this.databaseFormat);
     }
 
     @Override
-    public <T> BuilderForUpdate<T> builderForUpdate(Class<T> entityType) {
-        return new BuilderForUpdateImpl(this.entityManager, entityType, this.databaseFormat);
+    public <T> Update<T> forUpdate(Class<T> entityType) {
+        return new UpdateImpl(this.entityManager, entityType, this.databaseFormat);
     }
 
     @Override
-    public <T> BuilderForDelete<T> builderForDelete(Class<T> entityType) {
-        return new BuilderForDeleteImpl(this.entityManager, entityType, this.databaseFormat);
+    public <T> Delete<T> forDelete(Class<T> entityType) {
+        return new DeleteImpl(this.entityManager, entityType, this.databaseFormat);
     }
     
     protected void clear() { 
@@ -78,19 +84,7 @@ public class DaoImpl implements Dao {
     public void commit() {
         this.beginMethodCalled = false;
         EntityTransaction t = this.entityManager.getTransaction();
-        try{
-            if (t.isActive()) {
-                if (t.getRollbackOnly()) {
-                    t.rollback();
-                } else {
-                    t.commit();
-                }
-            }
-        }finally{
-            if(t.isActive()) {
-                t.rollback();
-            }
-        }
+        this.commitTransaction.apply(t);
     }
     
     @Override
@@ -136,9 +130,7 @@ public class DaoImpl implements Dao {
                 this.begin();
             }
             R result = entityManager.merge(entity);
-            if(this.isBeginMethodCalled()) { 
-                this.commit();
-            }
+            this.commitIfBeginMethodCalled(result);
             return result;
         }finally{
             this.close();
@@ -164,6 +156,12 @@ public class DaoImpl implements Dao {
         }finally{
             this.close();
         }
+    }
+
+    @Override
+    public Dao refresh(Object entity) {
+        entityManager.refresh(entity);
+        return (Dao)this;
     }
     
     @Override

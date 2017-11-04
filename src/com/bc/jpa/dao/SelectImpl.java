@@ -27,27 +27,32 @@ import javax.persistence.criteria.Selection;
  * @param <T>
  * @author Josh
  */
-public class BuilderForSelectImpl<T> 
-        extends BuilderForCriteriaDao<CriteriaQuery<T>, TypedQuery<T>, T, BuilderForSelect<T>> 
-        implements BuilderForSelect<T> {
+public class SelectImpl<T> 
+        extends BuilderForCriteriaDao<CriteriaQuery<T>, TypedQuery<T>, T, Select<T>> 
+        implements Select<T> {
     
     private final CriteriaQuery criteriaQuery;
     
     private final Set<String> selectedColumns = new LinkedHashSet<>();
     
-    public BuilderForSelectImpl(EntityManager em) {
+    private final Class<T> resultType;
+
+    public SelectImpl(EntityManager em) {
         super(em);
-        criteriaQuery = this.getCriteriaBuilder().createQuery();
+        this.criteriaQuery = this.getCriteriaBuilder().createQuery();
+        this.resultType = null;
     }
     
-    public BuilderForSelectImpl(EntityManager em, Class<T> resultType) {
-        super(em, resultType);
-        criteriaQuery = this.getCriteriaBuilder().createQuery(resultType);
+    public SelectImpl(EntityManager em, Class<T> resultType) {
+        super(em);
+        this.criteriaQuery = this.getCriteriaBuilder().createQuery(resultType);
+        this.resultType = Objects.requireNonNull(resultType);
     }
     
-    public BuilderForSelectImpl(EntityManager em, Class<T> resultType, DatabaseFormat databaseFormat) {
-        super(em, resultType, databaseFormat);
-        criteriaQuery = this.getCriteriaBuilder().createQuery(resultType);
+    public SelectImpl(EntityManager em, Class<T> resultType, DatabaseFormat databaseFormat) {
+        super(em, databaseFormat);
+        this.criteriaQuery = this.getCriteriaBuilder().createQuery(resultType);
+        this.resultType = Objects.requireNonNull(resultType);
     }
 
     @Override
@@ -168,25 +173,25 @@ public class BuilderForSelectImpl<T>
     }
     
     @Override
-    public BuilderForSelect search(String query, Collection<String> cols) {
+    public Select search(String query, Collection<String> cols) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.search(getCurrentEntityType(), query, cols);
     }
     
     @Override
-    public BuilderForSelect search(Class entityType, String query, Collection<String> cols) {
+    public Select search(Class entityType, String query, Collection<String> cols) {
         
         return search(entityType, query, cols.toArray(new String[0]));
     }
 
     @Override
-    public BuilderForSelect search(String query, String... cols) {
+    public Select search(String query, String... cols) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.search(getCurrentEntityType(), query, cols);
     }
     
     @Override
-    public BuilderForSelect search(Class entityType, String query, String... cols) {
+    public Select search(Class entityType, String query, String... cols) {
         
         this.throwExceptionIfBuilt();
         
@@ -209,25 +214,25 @@ public class BuilderForSelectImpl<T>
     }
 
     @Override
-    public BuilderForSelect select(Collection<String> cols) {
+    public Select select(Collection<String> cols) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.select(getCurrentEntityType(), cols);
     }
     
     @Override
-    public BuilderForSelect select(Class fromEntityType, Collection<String> cols) {
+    public Select select(Class fromEntityType, Collection<String> cols) {
         this.throwExceptionIfBuilt();
         return this.select(fromEntityType, cols.toArray(new String[0]));
     }
 
     @Override
-    public BuilderForSelect select(String... cols) {
+    public Select select(String... cols) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.select(getCurrentEntityType(), cols);
     }
     
     @Override
-    public BuilderForSelect select(Class fromEntityType, String... cols) {
+    public Select select(Class fromEntityType, String... cols) {
         
         this.throwExceptionIfBuilt();
         
@@ -243,25 +248,25 @@ public class BuilderForSelectImpl<T>
     }
 
     @Override
-    public BuilderForSelect<T> sum(Collection<String> cols) {
+    public Select<T> sum(Collection<String> cols) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.sum(getCurrentEntityType(), cols);
     }
     
     @Override
-    public BuilderForSelect<T> sum(Class entityType, Collection<String> cols) {
+    public Select<T> sum(Class entityType, Collection<String> cols) {
         this.throwExceptionIfBuilt();
         return this.sum(entityType, cols.toArray(new String[0]));
     }
 
     @Override
-    public BuilderForSelect<T> sum(String... cols) {
+    public Select<T> sum(String... cols) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.sum(getCurrentEntityType(), cols);
     }
     
     @Override
-    public BuilderForSelect<T> sum(Class entityType, String... cols) {
+    public Select<T> sum(Class entityType, String... cols) {
         
         this.throwExceptionIfBuilt();
         
@@ -277,25 +282,25 @@ public class BuilderForSelectImpl<T>
     }
     
     @Override
-    public BuilderForSelect<T> count() {
+    public Select<T> count() {
         this.throwExceptionIfNullCurrentEntityType();
         return this.count(getCurrentEntityType());
     }
     
     @Override
-    public BuilderForSelect<T> count(Class entityType) {
+    public Select<T> count(Class entityType) {
         Objects.requireNonNull(entityType);
         return this.doCount(entityType);
     }
     
     @Override
-    public BuilderForSelect<T> count(String col) {
+    public Select<T> count(String col) {
         this.throwExceptionIfNullCurrentEntityType();
         return this.count(getCurrentEntityType(), col);
     }
 
     @Override
-    public BuilderForSelect<T> count(Class entityType, String col) {
+    public Select<T> count(Class entityType, String col) {
         
         this.throwExceptionIfBuilt();
         
@@ -307,7 +312,7 @@ public class BuilderForSelectImpl<T>
     }
 
     @Override
-    public BuilderForSelect<T> max(String col) {
+    public Select<T> max(String col) {
         
         this.throwExceptionIfNullCurrentEntityType();
         
@@ -315,7 +320,7 @@ public class BuilderForSelectImpl<T>
     }
     
     @Override
-    public BuilderForSelect<T> max(Class entityType, String col) {
+    public Select<T> max(Class entityType, String col) {
         
         this.throwExceptionIfBuilt();
         
@@ -327,7 +332,7 @@ public class BuilderForSelectImpl<T>
     }
     
     @Override
-    public BuilderForSelect distinct(boolean b) {
+    public Select distinct(boolean b) {
     
         this.throwExceptionIfBuilt();
         
@@ -336,7 +341,7 @@ public class BuilderForSelectImpl<T>
         return this;
     }
 
-    protected BuilderForSelect doSelect(Class fromEntityType, String... cols) {
+    protected Select doSelect(Class fromEntityType, String... cols) {
         
         From root = this.from(fromEntityType, true);
 
@@ -383,7 +388,7 @@ public class BuilderForSelectImpl<T>
         return Collections.unmodifiableSet(selectedColumns);
     }
 
-    protected BuilderForSelect doSum(Class entityType, String... cols) {
+    protected Select doSum(Class entityType, String... cols) {
         
         From root = this.from(entityType, true);
         
@@ -406,7 +411,7 @@ public class BuilderForSelectImpl<T>
         return this;
     }
 
-    protected BuilderForSelect doMax(Class entityType, String col) {
+    protected Select doMax(Class entityType, String col) {
         From root = this.from(entityType, true);
         Path path = this.getPath(root, col);
         Expression countExpr = getCriteriaBuilder().max(path); 
@@ -414,14 +419,14 @@ public class BuilderForSelectImpl<T>
         return this;
     }
 
-    protected BuilderForSelect doCount(Class entityType) {
+    protected Select doCount(Class entityType) {
         From root = this.from(entityType, true);
         Expression countExpr = getCriteriaBuilder().count(root);
         criteriaQuery.select(countExpr);
         return this;
     }
 
-    protected BuilderForSelect doCount(Class entityType, String col) {
+    protected Select doCount(Class entityType, String col) {
         From root = this.from(entityType, true);
         Path path = this.getPath(root, col);
         Expression countExpr = getCriteriaBuilder().count(path);
@@ -434,6 +439,11 @@ public class BuilderForSelectImpl<T>
         return criteriaQuery;
     }
     
+    @Override
+    public final Class<T> getResultType() {
+        return resultType;
+    }
+
     @Override
     public String toString() {
         return this.getClass().getSimpleName() +  "{\n  built=" + this.isBuilt() + ", resultType=" + this.getResultType() + ", where=" + getRestriction() + ", nextConnector=" + getNextConnector() + "\n  roots=" + getRoots() + '}';// + "\n  joins=" + joins + '}';

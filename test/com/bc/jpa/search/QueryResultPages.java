@@ -72,7 +72,7 @@ public class QueryResultPages<T> extends AbstractPages<T> {
     }
 
     @Override
-    protected List<T> loadBatch(int pageNum) {
+    public List<T> loadPage(int pageNum) {
         final int batchSize = this.getPageSize();
         query.setFirstResult(batchSize * pageNum);
         query.setMaxResults(batchSize);

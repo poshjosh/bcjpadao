@@ -15,11 +15,13 @@
  */
 package com.bc.jpa.dao;
 
+import com.bc.jpa.dao.functions.GetAttributeNames;
 import java.util.Collection;
 import java.util.Map;
 import javax.persistence.Query;
 import javax.persistence.criteria.CommonAbstractCriteria;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.metamodel.Attribute;
 
 /**
  * @param <C> The type of output produced by the {@link #build() builder()}  
@@ -57,6 +59,10 @@ public interface Criteria<C extends CommonAbstractCriteria, Q extends Query, T, 
     LogicalOperator OR = LogicalOperator.OR;
 //    LogicalOperator XOR = LogicalOperator.XOR;
     
+    default String [] getAttributeNames(Attribute [] attributes) {
+        return new GetAttributeNames().apply(attributes);
+    }
+    
     D from(Class entityType);
     
     /**
@@ -85,8 +91,16 @@ public interface Criteria<C extends CommonAbstractCriteria, Q extends Query, T, 
      */
     D or(Class entityType);
     
+    default D where(Attribute col, Object... values) {
+        return this.where(col.getName(), values);
+    }
+    
     D where(String col, Object... values);
     
+    default D where(Class entityType, Attribute col, Object... values) {
+        return this.where(entityType, col.getName(), values);
+    }
+
     D where(Class entityType, String col, Object... values);
     
     D where(Map parameters);
@@ -97,61 +111,143 @@ public interface Criteria<C extends CommonAbstractCriteria, Q extends Query, T, 
     
     D where(Class entityType, 
             Criteria.ComparisonOperator comparisonOperator, Criteria.LogicalOperator connector, Map params);
+
+    default D where(Attribute col, Collection values) {
+        return this.where(col.getName(), values);
+    }
     
     D where(String col, Collection values);
     
+    default D where(Class entityType, Attribute col, Collection values) {
+        return this.where(entityType, col.getName(), values);
+    }
+
     D where(Class entityType, String col, Collection values);
+
+    default D where(Attribute col, 
+            Criteria.ComparisonOperator comparisonOperator, Object val) {
+        return this.where(col.getName(), comparisonOperator, val);
+    }
 
     D where(String key, 
             Criteria.ComparisonOperator comparisonOperator, Object val);
     
+    default D where(Class entityType, Attribute col, 
+            Criteria.ComparisonOperator comparisonOperator, Object val) {
+        return this.where(entityType, col.getName(), comparisonOperator, val);
+    }
+
     D where(Class entityType, String key, 
             Criteria.ComparisonOperator comparisonOperator, Object val);
+
+    default D where(Attribute [] cols, 
+            Criteria.ComparisonOperator comparisonOperator, 
+            Object val, Criteria.LogicalOperator logicalOperator) {
+        return this.where(this.getAttributeNames(cols), comparisonOperator, val, logicalOperator);
+    }
 
     D where(String [] cols, 
             Criteria.ComparisonOperator comparisonOperator, 
             Object val, Criteria.LogicalOperator connector);
     
+    default D where(Class entityType, Attribute [] cols, 
+            Criteria.ComparisonOperator comparisonOperator, 
+            Object val, Criteria.LogicalOperator logicalOperator) {
+        return this.where(entityType, this.getAttributeNames(cols), comparisonOperator, val, logicalOperator);
+    }
+
     D where(Class entityType, String [] cols, 
             Criteria.ComparisonOperator comparisonOperator, 
             Object val, Criteria.LogicalOperator connector);
 
-    D where(String key, 
-            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.LogicalOperator connector);
-    
-    D where(Class entityType, String key, 
-            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.LogicalOperator connector);
+    default D where(Attribute col, 
+            Criteria.ComparisonOperator comparisonOperator, 
+            Object val, Criteria.LogicalOperator logicalOperator) {
+        return this.where(col.getName(), comparisonOperator, val, logicalOperator);
+    }
 
+    D where(String key, 
+            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.LogicalOperator logicalOperator);
+    
+    default D where(Class entityType, Attribute col, 
+            Criteria.ComparisonOperator comparisonOperator, 
+            Object val, Criteria.LogicalOperator logicalOperator) {
+        return this.where(entityType, col.getName(), comparisonOperator, val, logicalOperator);
+    }
+
+    D where(Class entityType, String key, 
+            Criteria.ComparisonOperator comparisonOperator, Object val, Criteria.LogicalOperator logicalOperator);
+
+    default D join(Attribute joinColumn, Class toType) {
+        return this.join(joinColumn.getName(), toType);
+    }
+    
     D join(String joinColumn, Class toType);
     
+    default D join(Class fromType, Attribute joinColumn, Class toType) {
+        return this.join(fromType, joinColumn.getName(), toType);
+    }
+
     D join(Class fromType, String joinColumn, Class toType);
+
+    default D join(Attribute joinColumn, JoinType joinType, Class toType) {
+        return this.join(joinColumn.getName(), joinType, toType);
+    }
 
     D join(String joinColumn, JoinType joinType, Class toType);
     
+    default D join(Class fromType, Attribute joinColumn, JoinType joinType, Class toType) {
+        return this.join(fromType, joinColumn.getName(), joinType, toType);
+    }
+
     D join(Class fromType, String joinColumn, JoinType joinType, Class toType);
 
     D joins(JoinType joinType, Map<String, Class> joins);
 
     D joins(Class fromType, JoinType joinType, Map<String, Class> joins);
 
+    default D orderBy(Attribute col, String order) {
+        return this.orderBy(col.getName(), order);
+    }
+    
     D orderBy(String col, String order);
     
+    default D orderBy(Class entityType, Attribute col, String order) {
+        return this.orderBy(entityType, col.getName(), order);
+    }
+
     D orderBy(Class entityType, String col, String order);
 
     D orderBy(Map<String, String> orders);
     
     D orderBy(Class entityType, Map<String, String> orders);
     
+    default D descOrder(Attribute... cols) {
+        return this.descOrder(this.getAttributeNames(cols));
+    }
+
     D descOrder(String... cols);
     
+    default D descOrder(Class entityType, Attribute... cols) {
+        return this.descOrder(entityType, this.getAttributeNames(cols));
+    }
+
     D descOrder(Class entityType, String... cols);
 
     D descOrder(Collection<String> cols);
     
     D descOrder(Class entityType, Collection<String> cols);
     
+    default D ascOrder(Attribute... cols) {
+        return this.ascOrder(this.getAttributeNames(cols));
+    }
+
     D ascOrder(String... cols);
     
+    default D ascOrder(Class entityType, Attribute... cols) {
+        return this.ascOrder(this.getAttributeNames(cols));
+    }
+
     D ascOrder(Class entityType, String... cols);
 
     D ascOrder(Collection<String> cols);

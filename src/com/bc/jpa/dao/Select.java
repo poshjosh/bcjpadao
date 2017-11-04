@@ -6,7 +6,7 @@ import javax.persistence.criteria.CriteriaQuery;
  * @param <T>
  * @author Josh
  */
-public interface BuilderForSelect<T> 
+public interface Select<T> 
         extends CriteriaForSelect<T>,
         SelectDao<T> {
 

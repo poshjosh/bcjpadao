@@ -30,6 +30,8 @@ public abstract class AbstractSearchResults<T> extends AbstractPages<T>
 
     private int pageNumber;
     
+    private PaginatedList pages;
+    
     public AbstractSearchResults(int batchSize) {
         super(batchSize, true);
     }
@@ -51,7 +53,10 @@ public abstract class AbstractSearchResults<T> extends AbstractPages<T>
     
     @Override
     public PaginatedList<T> getPages() {
-        return new PaginatedListImpl(this);
+        if(pages == null) {
+            pages = new PaginatedListImpl(this);
+        }
+        return pages;
     }
     
     @Override
