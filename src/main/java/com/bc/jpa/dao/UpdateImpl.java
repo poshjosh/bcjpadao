@@ -34,23 +34,18 @@ public class UpdateImpl<T>
 
     public UpdateImpl(EntityManager em, Class<T> targetEntity) {
         super(em);
-        this.criteriaUpdate = init(targetEntity);
+        this.criteriaUpdate = this.getCriteriaBuilder().createCriteriaUpdate(targetEntity);
+        if(targetEntity.getAnnotation(Entity.class) != null) {
+            this.from(targetEntity);
+        }
     }
 
     public UpdateImpl(EntityManager em, Class<T> targetEntity, DatabaseFormat databaseFormat) {
         super(em, databaseFormat);
-        this.criteriaUpdate = this.init(targetEntity);
-    }
-    
-    private CriteriaUpdate init(Class<T> targetEntity) {
-        
-        final CriteriaUpdate output = this.getCriteriaBuilder().createCriteriaUpdate(targetEntity);
-        
+        this.criteriaUpdate = this.getCriteriaBuilder().createCriteriaUpdate(targetEntity);
         if(targetEntity.getAnnotation(Entity.class) != null) {
             this.from(targetEntity);
         }
-        
-        return output;
     }
 
     @Override

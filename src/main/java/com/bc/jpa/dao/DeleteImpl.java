@@ -34,23 +34,18 @@ public class DeleteImpl<T>
 
     public DeleteImpl(EntityManager em, Class<T> targetEntity) {
         super(em);
-        this.criteriaDelete = this.init(targetEntity);
+        this.criteriaDelete = this.getCriteriaBuilder().createCriteriaDelete(targetEntity);
+        if(targetEntity.getAnnotation(Entity.class) != null) {
+            this.from(targetEntity);
+        }
     }
 
     public DeleteImpl(EntityManager em, Class<T> targetEntity, DatabaseFormat databaseFormat) {
         super(em, databaseFormat);
-        this.criteriaDelete = this.init(targetEntity);
-    }
-    
-    private CriteriaDelete init(Class<T> targetEntity) {
-        
-        final CriteriaDelete output = this.getCriteriaBuilder().createCriteriaDelete(targetEntity);
-        
+        this.criteriaDelete = this.getCriteriaBuilder().createCriteriaDelete(targetEntity);
         if(targetEntity.getAnnotation(Entity.class) != null) {
             this.from(targetEntity);
         }
-        
-        return output;
     }
     
     @Override

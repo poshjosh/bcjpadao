@@ -47,24 +47,19 @@ public class SelectImpl<T>
     public SelectImpl(EntityManager em, Class<T> resultType) {
         super(em);
         this.resultType = Objects.requireNonNull(resultType);
-        this.criteriaQuery = this.init(resultType);
+        this.criteriaQuery = this.getCriteriaBuilder().createQuery(resultType);
+        if(resultType.getAnnotation(Entity.class) != null) {
+            this.from(resultType);
+        }
     }
     
     public SelectImpl(EntityManager em, Class<T> resultType, DatabaseFormat databaseFormat) {
         super(em, databaseFormat);
         this.resultType = Objects.requireNonNull(resultType);
-        this.criteriaQuery = this.init(resultType);
-    }
-
-    private CriteriaQuery init(Class<T> targetEntity) {
-        
-        final CriteriaQuery output = this.getCriteriaBuilder().createQuery(targetEntity);
-        
-        if(targetEntity.getAnnotation(Entity.class) != null) {
-            this.from(targetEntity);
+        this.criteriaQuery = this.getCriteriaBuilder().createQuery(resultType);
+        if(resultType.getAnnotation(Entity.class) != null) {
+            this.from(resultType);
         }
-        
-        return output;
     }
 
     @Override
