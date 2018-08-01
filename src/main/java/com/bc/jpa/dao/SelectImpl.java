@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.TypedQuery;
@@ -45,14 +46,25 @@ public class SelectImpl<T>
     
     public SelectImpl(EntityManager em, Class<T> resultType) {
         super(em);
-        this.criteriaQuery = this.getCriteriaBuilder().createQuery(resultType);
         this.resultType = Objects.requireNonNull(resultType);
+        this.criteriaQuery = this.init(resultType);
     }
     
     public SelectImpl(EntityManager em, Class<T> resultType, DatabaseFormat databaseFormat) {
         super(em, databaseFormat);
-        this.criteriaQuery = this.getCriteriaBuilder().createQuery(resultType);
         this.resultType = Objects.requireNonNull(resultType);
+        this.criteriaQuery = this.init(resultType);
+    }
+
+    private CriteriaQuery init(Class<T> targetEntity) {
+        
+        final CriteriaQuery output = this.getCriteriaBuilder().createQuery(targetEntity);
+        
+        if(targetEntity.getAnnotation(Entity.class) != null) {
+            this.from(targetEntity);
+        }
+        
+        return output;
     }
 
     @Override

@@ -15,6 +15,7 @@
  */
 package com.bc.jpa.dao;
 
+import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaDelete;
@@ -33,14 +34,25 @@ public class DeleteImpl<T>
 
     public DeleteImpl(EntityManager em, Class<T> targetEntity) {
         super(em);
-        this.criteriaDelete = this.getCriteriaBuilder().createCriteriaDelete(targetEntity);
+        this.criteriaDelete = this.init(targetEntity);
     }
 
     public DeleteImpl(EntityManager em, Class<T> targetEntity, DatabaseFormat databaseFormat) {
         super(em, databaseFormat);
-        this.criteriaDelete = this.getCriteriaBuilder().createCriteriaDelete(targetEntity);
+        this.criteriaDelete = this.init(targetEntity);
     }
-
+    
+    private CriteriaDelete init(Class<T> targetEntity) {
+        
+        final CriteriaDelete output = this.getCriteriaBuilder().createCriteriaDelete(targetEntity);
+        
+        if(targetEntity.getAnnotation(Entity.class) != null) {
+            this.from(targetEntity);
+        }
+        
+        return output;
+    }
+    
     @Override
     public CriteriaForDelete<T> getCriteria() {
         return this;
