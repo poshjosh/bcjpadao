@@ -19,12 +19,12 @@ import org.junit.Test;
  *
  * @author Josh
  */
-public class DaoImplTest {
+public class SelectImplTest {
     
     public static final EntityManagerFactory EMF = 
             Persistence.createEntityManagerFactory("bctasktrackerPUmaster");
             
-    public DaoImplTest() {
+    public SelectImplTest() {
     }
     
     @BeforeClass
@@ -53,8 +53,8 @@ public class DaoImplTest {
     public void testCount() {
         System.out.println("testCount");
         final EntityManager em = EMF.createEntityManager();
-        try(final Dao instance = new DaoImpl(em)) {
-            final Number count = instance.forSelect(Number.class)
+        try(final Select<Number> instance = new SelectImpl(em, Number.class)) {
+            final Number count = instance 
                     .from(Task.class)
                     .count("taskid")
                     .createQuery()

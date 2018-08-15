@@ -4,7 +4,6 @@ import com.bc.jpa.dao.functions.CommitEntityTransaction;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.LockModeType;
@@ -14,7 +13,7 @@ import javax.persistence.LockModeType;
  */
 public class DaoImpl implements Dao {
 
-    private transient static final Logger LOG = Logger.getLogger(DaoImpl.class.getName());
+//    private transient static final Logger LOG = Logger.getLogger(DaoImpl.class.getName());
 
     private final EntityManager entityManager;
     
@@ -36,36 +35,6 @@ public class DaoImpl implements Dao {
         this.databaseFormat = databaseFormat;
         
         this.commitTransaction = new CommitEntityTransaction();
-    }
-    
-    @Override
-    public <T> SelectDao<T> selectInstance(Class<T> resultType) {
-        return this.forSelect(resultType);
-    }
-
-    @Override
-    public <T> UpdateDao<T> updateInstance(Class<T> entityType) {
-        return this.forUpdate(entityType);
-    }
-
-    @Override
-    public <T> DeleteDao<T> deleteInstance(Class<T> entityType) {
-        return this.forDelete(entityType);
-    }
-    
-    @Override
-    public <T> Select<T> forSelect(Class<T> resultType) {
-        return new SelectImpl(this.entityManager, resultType, this.databaseFormat);
-    }
-
-    @Override
-    public <T> Update<T> forUpdate(Class<T> entityType) {
-        return new UpdateImpl(this.entityManager, entityType, this.databaseFormat);
-    }
-
-    @Override
-    public <T> Delete<T> forDelete(Class<T> entityType) {
-        return new DeleteImpl(this.entityManager, entityType, this.databaseFormat);
     }
     
     protected void clear() { 

@@ -17,99 +17,34 @@ package com.bc.jpa.dao.eclipselink;
 
 import com.bc.jpa.dao.DatabaseFormat;
 import com.bc.jpa.dao.SelectImpl;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
-import javax.persistence.OneToMany;
 import javax.persistence.TypedQuery;
-import org.eclipse.persistence.annotations.BatchFetchType;
-import org.eclipse.persistence.config.QueryHints;
 
 /**
  * @author Chinomso Bassey Ikwuagwu on Aug 18, 2016 2:01:52 AM
  * @param <T>
  */
 public class SelectEclipselinkOptimized<T> extends SelectImpl<T> {
+    
+    private final EclipselinkReadOnlyOptimization<T> readonlyOptimization;
 
     public SelectEclipselinkOptimized(EntityManager em) {
         super(em);
+        this.readonlyOptimization = new EclipselinkReadOnlyOptimization<>();
     }
 
     public SelectEclipselinkOptimized(EntityManager em, Class<T> resultType) {
         super(em, resultType);
+        this.readonlyOptimization = new EclipselinkReadOnlyOptimization<>();
     }
 
     public SelectEclipselinkOptimized(EntityManager em, Class<T> resultType, DatabaseFormat databaseFormat) {
         super(em, resultType, databaseFormat);
+        this.readonlyOptimization = new EclipselinkReadOnlyOptimization<>();
     }
 
     @Override
     public TypedQuery<T> format(TypedQuery<T> tq) {
-        
-// http://java-persistence-performance.blogspot.com/2010/08/batch-fetching-optimizing-object-graph.html
-// http://java-persistence-performance.blogspot.com/2011/06/how-to-improve-jpa-performance-by-1825.html
-//                
-        tq.setHint("eclipselink.read-only", "true");
-        
-// http://vard-lokkur.blogspot.com/2011/05/eclipselink-jpa-queries-optimization.html 
-        
-        Set<Class> entityTypes = this.getEntityTypes();
-        
-        boolean added = false;
-        for(Class entityType:entityTypes) {
-            
-            final String entityName = entityType.getSimpleName();
-            
-            final String ch = Character.toString(entityName.charAt(0)).toLowerCase();
-            
-            Field [] fields = entityType.getDeclaredFields();
-            
-            for(Field field:fields) {
-                
-                if(accept(entityTypes, field)) {
-                    
-                    OneToMany oneToMany = field.getAnnotation(OneToMany.class);
-
-                    if(oneToMany != null) {
-                        final String HINT = ch + '.' + field.getName();
-                        try{
-                            tq.setHint(QueryHints.BATCH, HINT);
-                            added = true;
-                        }catch(IllegalArgumentException ignore) {
-                            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, 
-                                    "While setting {0} = {1} on {2}, encountered: {3}", 
-                                    new Object[]{QueryHints.BATCH, HINT, entityName, ignore});
-                        }
-                    }
-                }
-            }
-        }
-        if(added) {
-            tq.setHint(QueryHints.BATCH_TYPE, BatchFetchType.IN);
-        }
-        return tq;
-    }
-
-    public boolean accept(Set<Class> classes, Field field) {
-        boolean accepted;
-        OneToMany oneToMany = field.getAnnotation(OneToMany.class);
-        if(oneToMany == null) {
-            accepted = false;
-        }else{
-            accepted = false;
-            final Type type = field.getGenericType();
-// Format:  java.util.XXX<Collection-Element-Type> e.g:  java.util.List<com.looseboxes.pu.entities.Productvariant>
-            final String sval = type.toString();
-            for(Class cls:classes) {
-                if(sval.contains( "<" + cls.getName() + ">")) {
-                    accepted = true;
-                    break;
-                }
-            }
-        }
-        return accepted;
+        return this.readonlyOptimization.apply(this.getEntityTypes(), tq);
     }
 }

@@ -16,6 +16,8 @@
 
 package com.bc.jpa.dao;
 
+import com.bc.jpa.search.BaseSearchResults;
+import com.bc.jpa.search.SearchResults;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +60,21 @@ public interface SelectDao<T>
      * @return The single result
      */
     T getSingleResultAndClose();
+
+    default SearchResults<T> search(Class<T> entityClass, int pageSize) {
+        final SelectDao<T> select = this.getCriteria().from(entityClass);
+        return new BaseSearchResults(select, pageSize, true);
+    }
+    
+    default List<T> findAllAndClose(Class<T> entityClass) {
+        final List<T> resultList = this.getCriteria().from(entityClass).getResultsAndClose();
+        return resultList;
+    }
+    
+    default List<T> findAllAndClose(Class<T> entityClass, int offset, int limit) {
+        final List<T> resultList = this.getCriteria().from(entityClass).getResultsAndClose(offset, limit);
+        return resultList;
+    }
 
     T findAndClose(Object primaryKey);
     
