@@ -69,8 +69,13 @@ public class UpdateImpl<T>
     @Override
     public int executeUpdateCommitAndClose() {
         try{
-            int updateCount = this.executeUpdate();
-            this.commit();
+            if(!this.isBeginMethodCalled()) {
+                this.begin();
+            }
+            final int updateCount = this.executeUpdate();
+            if(this.isBeginMethodCalled()) {
+                this.commit();
+            }        
             return updateCount;
         }finally{
             this.close();

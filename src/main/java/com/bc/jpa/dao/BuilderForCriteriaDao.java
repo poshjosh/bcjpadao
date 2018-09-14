@@ -271,6 +271,8 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         for(Object col : cols) {
 
             Object val = params.get(col);
+            
+            logger.finer(() -> toString(col) + '=' + val);
 
             if(offset++ < params.size()-1) {
                 this.where(entityType, toString(col), comparisonOperator, val, connector);
@@ -504,7 +506,10 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         From root = this.from(entityType, true);
         
         Predicate predicate = this.buildPredicate(criteriaBuilder, entityType, root, key, comparisonOperator, val);
-        
+        if(logger.isLoggable(logLevel)) {
+            logger.log(logLevel, "Restriction: {0}\nPredicate: {1}", 
+                    new Object[]{restriction, predicate});
+        }
         if(predicate != null) {
         
             if(restriction == null) {
@@ -513,6 +518,7 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
                 restriction = this.buildPredicate(criteriaBuilder, restriction, nextConnector, predicate);
             }
         }
+        logger.log(logLevel, "Combined: {0}", restriction);
 
         nextConnector = connector;
         
