@@ -16,6 +16,7 @@
 
 package com.bc.jpa.paging;
 
+import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Objects;
@@ -24,14 +25,15 @@ import java.util.Objects;
  * @author Chinomso Bassey Ikwuagwu on Jul 26, 2016 3:32:57 PM
  * @param <T>
  */
-public class PaginatedListImpl<T> extends AbstractList<T> implements PaginatedList<T> {
+public class PaginatedListImpl<T> extends AbstractList<T> 
+        implements PaginatedList<T>, Serializable {
 
     private final Paginated<T> paginated;
     
     public PaginatedListImpl(Paginated<T> paginated) {
         this.paginated = Objects.requireNonNull(paginated);
     }
-
+    
     @Override
     public T get(int index) {
         return paginated.get(index);

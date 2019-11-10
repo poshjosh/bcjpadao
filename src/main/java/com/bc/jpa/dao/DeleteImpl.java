@@ -15,6 +15,7 @@
  */
 package com.bc.jpa.dao;
 
+import com.bc.jpa.dao.util.DatabaseFormat;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -73,10 +74,14 @@ public class DeleteImpl<T>
                 this.begin();
             }
             final int updateCount = this.executeUpdate();
+            final boolean committed;
             if(this.isBeginMethodCalled()) {
                 this.commit();
+                committed = true;
+            }else{
+                committed = false;
             }        
-            return updateCount;
+            return committed ? updateCount : 0;
         }finally{
             this.close();
         }

@@ -1,5 +1,6 @@
 package com.bc.jpa.dao;
 
+import com.bc.jpa.dao.util.DatabaseFormat;
 import static com.bc.jpa.dao.Criteria.LIKE;
 import static com.bc.jpa.dao.Criteria.OR;
 import java.util.Arrays;
@@ -420,7 +421,7 @@ public class SelectImpl<T>
 
     protected Select doMax(Class entityType, String col) {
         From root = this.from(entityType, true);
-        Path path = this.getPath(root, col);
+        Path<Number> path = this.getPath(root, col, Number.class);
         Expression countExpr = getCriteriaBuilder().max(path); 
         criteriaQuery.select(countExpr);
         return this;

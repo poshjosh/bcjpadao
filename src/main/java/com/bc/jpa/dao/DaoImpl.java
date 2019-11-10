@@ -1,5 +1,6 @@
 package com.bc.jpa.dao;
 
+import com.bc.jpa.dao.util.DatabaseFormat;
 import com.bc.jpa.dao.functions.CommitEntityTransaction;
 import java.util.Map;
 import java.util.Objects;
@@ -60,8 +61,12 @@ public class DaoImpl implements Dao {
     @Override
     public void close() {
 //        System.out.println("----------------  CLOSING  --------------- @"+this.getClass().getName());
-        if(this.entityManager.isOpen()) {
-            this.entityManager.close();
+        try{
+            if(this.entityManager.isOpen()) {
+                this.entityManager.close();
+            }
+        }finally{
+            this.clear();
         }
     }
     

@@ -16,8 +16,8 @@
 
 package com.bc.jpa.dao;
 
-import com.bc.jpa.search.BaseSearchResults;
-import com.bc.jpa.search.SearchResults;
+import com.bc.jpa.dao.search.BaseSearchResults;
+import com.bc.jpa.dao.search.SearchResults;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

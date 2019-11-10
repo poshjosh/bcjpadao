@@ -1,13 +1,14 @@
 package com.bc.jpa.dao;
 
+import com.bc.jpa.dao.util.DatabaseFormat;
 import static com.bc.jpa.dao.Criteria.AND;
 import static com.bc.jpa.dao.Criteria.OR;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -120,46 +121,25 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     }
     
     @Override
+    public Q createQuery() {
+            
+        final C criteriaForQuery = this.build();
+
+        final Q tq = this.doCreateQuery(criteriaForQuery);
+
+        return format(tq);
+    }
+
+    @Override
     public C build() {
     
-        return this.build(true);
-    }
-
-    protected C build(boolean clear) { 
-
         this.throwExceptionIfBuilt();
         
-        try{
+        this.built = true;
 
-            this.built = true;
+        logger.log(Level.FINER, "#build.\n{0}", this);
 
-            logger.log(Level.FINER, "#build.\n{0}", this);
-            
-            return this.doBuild();
-
-        }finally{
-            if(clear) {
-              this.clear();
-            }
-        }
-    }
-    
-    @Override
-    public Q createQuery() {
-        try{
-            
-            final boolean clear = false;
-            
-            final C criteriaForQuery = this.build(clear);
-
-            final Q tq = this.doCreateQuery(criteriaForQuery);
-            
-            return format(tq);
-            
-        }finally{
-            
-            this.clear();
-        }
+        return this.doBuild();
     }
     
     @Override
@@ -789,7 +769,12 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     
     public Path getPath(From root, String column) {
         
-        final Path path = root.get(column);
+        return getPath(root, column, Object.class);
+    }
+    
+    public <T> Path<T> getPath(From root, String column, Class<T> type) {
+        
+        final Path<T> path = root.<T>get(column);
 
         if(path == null) {
             
@@ -798,7 +783,6 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         
         return path;
     }
-    
 /////////////////////// Begin methods overriden for type ///////////////////////
 
     @Override
@@ -863,11 +847,11 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         }
     }
 
-    protected final void setCurrentEntityType(Class currentEntityType) {
+    public final void setCurrentEntityType(Class currentEntityType) {
         this.currentEntityType = currentEntityType;
     }
 
-    protected final Class getCurrentEntityType() {
+    public final Class getCurrentEntityType() {
         return currentEntityType;
     }
 
@@ -876,8 +860,13 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
     }
 
     @Override
+    public final List<Class> getEntityTypeList() {
+        return new ArrayList(roots.keySet());
+    }
+    
+    @Override
     public final Set<Class> getEntityTypes() {
-        return new HashSet(roots.keySet());
+        return new LinkedHashSet(roots.keySet());
     }
 
     @Override
@@ -885,35 +874,35 @@ public abstract class BuilderForCriteriaDao<C extends CommonAbstractCriteria, Q 
         return criteriaBuilder;
     }
 
-    protected final Map<Class, Root> getRoots() {
+    public final Map<Class, Root> getRoots() {
         return roots;
     }
 
-    protected final From getCurrentFrom() {
+    public final From getCurrentFrom() {
         return currentFrom;
     }
 
-    protected final Predicate getRestriction() {
+    public final Predicate getRestriction() {
         return restriction;
     }
     
-    protected final List<Order> getOrders() {
+    public final List<Order> getOrders() {
         return orders == null ? Collections.EMPTY_LIST : orders;
     }
     
-    protected final Class getJoinFromType() {
+    public final Class getJoinFromType() {
         return joinFromType;
     }
 
-    protected final Class getJoinToType() {
+    public final Class getJoinToType() {
         return joinToType;
     }
 
-    protected final Join getJoin() {
+    public final Join getJoin() {
         return join;
     }
 
-    protected final Criteria.LogicalOperator getNextConnector() {
+    public final Criteria.LogicalOperator getNextConnector() {
         return nextConnector;
     }
     

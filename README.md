@@ -1,8 +1,9 @@
 # bcjpadao
 Light weight (18 classes) JPA helper library - syntatic sugar (elegantly expressive) and more
 
-# Define variables
+## Define variables
 
+```java
         int firstResult = 0;
         int maxResults = 100;
         
@@ -11,15 +12,19 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
         Class<E> entityType;
         
         Object toPersist;
+```
         
-# Simple use-case (Generic Dao)
+## Simple use-case (Generic Dao)
 
+```java
         try(Dao dao = new DaoImpl(em)) {
             dao.begin().persist(toPersist).commit();
         }
+```
 
-# DeleteDao 
+## DeleteDao 
 
+```java
         // Call Dao#forDelete to get DeleteDao instance, forSelect to get SelectDao... etc
         //
         DeleteDao<E> forDelete = dao.forDelete(entityType);
@@ -27,17 +32,21 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
         // finish() method calls executeUpdate(), commit(), close()
         //
         int updateCount = forDelete.begin().from(entityType).where("col_0", "val_0").finish(); 
+```
 
-# SelectDao
+## SelectDao
 
+```java
         List<E> resultList = dao.forSelect(entityType).getCriteria()
                 .from(entityType)
                 .select("col_0", "col_1")
                 .where()
                 .getResultsAndClose(firstResult, maxResults);
+```
 
-# Using Builders makes life easier 
+## Using Builders makes life easier 
 
+```java
         // (Builders implement CriteriaDao so no need to call getCriteria())
 
         // SELECT COUNT(*) WHERE col = 'val'
@@ -55,9 +64,11 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
                 .select(columnsToSelect)
                 .ascOrder("col_2", "col_1")
                 .getResultsAndClose(firstResult, maxResults);
+```
 
-# Reusing Dao / Builder(s)
+## Reusing Dao / Builder(s)
 
+```java
         // Dao / BuilderFor may be reused if #close() has not been called. Simply call #reset() before reuse.
 
         try(BuilderForUpdate<E> reused = new DaoImpl(em).builderForUpdate(entityType)) {
@@ -72,3 +83,4 @@ Light weight (18 classes) JPA helper library - syntatic sugar (elegantly express
             
             reused.commit();
         }
+```

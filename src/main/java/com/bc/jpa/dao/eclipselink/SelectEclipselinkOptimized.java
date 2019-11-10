@@ -15,7 +15,7 @@
  */
 package com.bc.jpa.dao.eclipselink;
 
-import com.bc.jpa.dao.DatabaseFormat;
+import com.bc.jpa.dao.util.DatabaseFormat;
 import com.bc.jpa.dao.SelectImpl;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;

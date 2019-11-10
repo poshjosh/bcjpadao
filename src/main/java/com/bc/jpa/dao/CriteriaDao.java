@@ -16,6 +16,7 @@
 
 package com.bc.jpa.dao;
 
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.criteria.CommonAbstractCriteria;
@@ -43,6 +44,8 @@ public interface CriteriaDao<C extends CommonAbstractCriteria, Q extends Query, 
     
     D reset();
 
+    List<Class> getEntityTypeList();
+    
     Set<Class> getEntityTypes();
     
     @Override
