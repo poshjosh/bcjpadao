@@ -1,129 +1,86 @@
-## chocogreen
+# bcjpadao
+Light weight (18 classes) JPA helper library - syntatic sugar (elegantly expressive) and more
 
-#### A Java app to enable the fulfillment team at *chocogreen* generate clear information about the number of chocolates to serve up for wrapper-less orders
-
-### Specifications
-
--  Java 1.8
-
--  App is bundled as **.jar** file, with dependencies.
-
--  However only test scope dependencies are required:
-
-```xml
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.10.19</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-```
-### To Run the application
-
--  Make sure java is on your class path.
-
--  Open the command prompt.
-
--  Change directory to the directory/folder where the jar file is.
-
--  Make sure the **input\orders.csv** file is in the same folder with the jar file.
-
-   For example consider the following, depicting related file locations:
-
-   -  **Jar file**: C:\Users\USER\Desktop\app\chocogreen-1.0-SNAPSHOT.jar
-
-   -  **CSV file**: C:\Users\USER\Desktop\app\input\orders.csv
-
-   And here is the structure:
-
-   -  **app** *(C:\Users\USER\Desktop\app)*
-
-      -  **chocogreen.jar**
-
-      -  **input**
-
-         -  **orders.csv**  
-
--  Run the following command: 
-
-```
-   java -jar [JAR FILE]  
-```
-
-   For example: 
-
-```
-   C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar
-```
-
--  You could specify a different location for the source file with a '**source**' argument:
-
-   For example, a relative path: 
-
-```
-   C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar input\orders.csv
-```
-   
-   Or, an absolute path: 
-```
-C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar C:\Users\USER\Desktop\app\input\orders.csv
-```
-
--  The app runs in silent mode by default. To display logging information add the argument '**debug=true**'
-
-   For example: 
-```            
-   C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar debug=true
-```
-
-### List of Supported Command Line Arguments
-
-|     Argument     |             Type               |     Default Value    |                    Implication                  | 
-| ---------------- | ------------------------------ | -------------------- | ----------------------------------------------- |
-| charset          | class java.nio.charset.Charset | system default value | Charset for I/O operations                      |
-| debug            | boolean                        | true                 | Display logging info                            |
-| limit            | int                            | Integer.MAX_VALUE    | Process at most this number of lines            |
-| offset           | int                            | 0                    | Start processing from the line at this position |
-| source           | text                           | input/orders.csv     | The source of CSV data (absolute or relative)   |
-| sourceHasHeaders | boolean                        | true                 | true if the source has headers, otherwise false |
-
--  An invalid command line argument, will cause the default value to be used.
-
--  If unsure, use the **'debug=true'** argument to generate debugging information.
-
-### Notes
-
--  I was tempted to create an Order class with a field named 'type', for simplicity.
-
-   However, I believe the 'type' field does not belong to the Order class. 
-   Rather, it belongs to Chocolate or order item data class.
-   To butress this point, compare the following methods which should return any of (milk | dark | white) :
+## Define variables
 
 ```java
-   Order.getType()  	
+        int firstResult = 0;
+        int maxResults = 100;
+        
+        EntityManager em;
+        
+        Class<E> entityType;
+        
+        Object toPersist;
 ```
-   vs
+        
+## Simple use-case (Generic Dao)
 
 ```java
-   Chocolate.getType()
+        try(Dao dao = new DaoImpl(em)) {
+            dao.begin().persist(toPersist).commit();
+        }
 ```
 
-   The first method is misleading, while the second is intuitive.
+## DeleteDao 
 
--  A bonus item (chocolate) has price of value zero (0). This is consistent with the concept of bonuses being 'free of charge'.
-   Also, amount payable does not change after adding bonuses because each bonus has price of '0'.
+```java
+        // Call Dao#forDelete to get DeleteDao instance, forSelect to get SelectDao... etc
+        //
+        DeleteDao<E> forDelete = dao.forDelete(entityType);
 
--  @specs captures notes relating to given specifications.
+        // finish() method calls executeUpdate(), commit(), close()
+        //
+        int updateCount = forDelete.begin().from(entityType).where("col_0", "val_0").finish(); 
+```
 
--  serialVersionUID was not generated for any of the classes.
+## SelectDao
 
+```java
+        List<E> resultList = dao.forSelect(entityType).getCriteria()
+                .from(entityType)
+                .select("col_0", "col_1")
+                .where()
+                .getResultsAndClose(firstResult, maxResults);
+```
 
+## Using Builders makes life easier 
 
+```java
+        // (Builders implement CriteriaDao so no need to call getCriteria())
+
+        // SELECT COUNT(*) WHERE col = 'val'
+        
+        Long count = dao.builderForSelect(Long.class)
+                .where(entityType, "col", "val").count().getSingleResultAndClose();
+        
+        // SELECT col_0, col_1 FROM table WHERE ... ... ORDER BY col_2 ASC col_1 ASC
+
+        List<String[]> resultList = new DaoImpl(em).builderForSelect(String[].class)
+                .from(entityType)
+                .where("col_0", "val_0")
+                .or().where("col_1", Criteria.LIKE, "val_1")
+                .and().where("col_2", Criteria.LESS_THAN, "val_2")
+                .select(columnsToSelect)
+                .ascOrder("col_2", "col_1")
+                .getResultsAndClose(firstResult, maxResults);
+```
+
+## Reusing Dao / Builder(s)
+
+```java
+        // Dao / BuilderFor may be reused if #close() has not been called. Simply call #reset() before reuse.
+
+        try(BuilderForUpdate<E> reused = new DaoImpl(em).builderForUpdate(entityType)) {
+            
+            reused.begin();
+            
+            updateCount = reused.from(entityType).where("col_0", "val_0").set("col_0", "val_1").executeUpdate();
+            
+            reused.reset();
+            
+            updateCount = reused.from(entityType).where("col_0", "val_1").set("col_0", "val_0").executeUpdate();
+            
+            reused.commit();
+        }
+```
