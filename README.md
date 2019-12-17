@@ -1,6 +1,6 @@
 ## chocogreen
 
-** A Java app to enable the fulfillment team at **chocogreen** generate clear 
+** A Java app to enable the fulfillment team at *chocogreen* generate clear 
 information about the number of chocolates to serve up for wrapper-less orders**
 
 ### Specifications
@@ -35,7 +35,7 @@ information about the number of chocolates to serve up for wrapper-less orders**
 
 -  Change directory to the directory/folder where the jar file is.
 
--  Make sure the input\orders.csv file is in the same folder with the jar file.
+-  Make sure the **input\orders.csv** file is in the same folder with the jar file.
 
    For example consider the following, depicting related file locations:
 
@@ -92,9 +92,13 @@ C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar C:\Users\USER\De
 | charset          | class java.nio.charset.Charset | system default value | Charset for I/O operations                      |
 | debug            | boolean                        | true                 | Display logging info                            |
 | limit            | int                            | Integer.MAX_VALUE    | Process at most this number of lines            |
-| offset           | int                            | 0                    | Start processing the line at this position      |
+| offset           | int                            | 0                    | Start processing from the line at this position |
 | source           | text                           | input/orders.csv     | The source of CSV data (absolute or relative)   |
 | sourceHasHeaders | boolean                        | true                 | true if the source has headers, otherwise false |
+
+-  An invalid command line argument, will cause the default value to be used.
+
+-  If unsure, use the **'debug=true'** argument to generate debugging information.
 
 ### Notes
 
@@ -122,5 +126,5 @@ C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar C:\Users\USER\De
 
 -  serialVersionUID was not generated for any of the classes.
 
--  An invalid charset will not lead to an exception but cause default charset to be used.
+
 
