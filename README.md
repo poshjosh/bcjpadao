@@ -1,7 +1,6 @@
 ## chocogreen
 
-#### A Java app to enable the fulfillment team at *chocogreen* generate clear 
-information about the number of chocolates to serve up for wrapper-less orders**
+#### A Java app to enable the fulfillment team at *chocogreen* generate clear information about the number of chocolates to serve up for wrapper-less orders
 
 ### Specifications
 
