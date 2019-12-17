@@ -1,16 +1,15 @@
 ## chocogreen
 
-### A Java app to enable fulfillment team at **chocogreen** generate clear information about the number of chocolates to serve up for wrapper-less orders
+** A Java app to enable the fulfillment team at **chocogreen** generate clear 
+information about the number of chocolates to serve up for wrapper-less orders**
 
 ### Specifications
 
 -  Java 1.8
 
--  App bundled as **.jar** file.
+-  App is bundled as **.jar** file, with dependencies.
 
--  jar bundled with dependencies
-
--  Dependencies
+-  However only test scope dependencies are required:
 
 ```xml
     <dependencies>
@@ -60,34 +59,42 @@
    java -jar [JAR FILE]  
 ```
 
-   -  For example: 
+   For example: 
 
 ```
    C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar
 ```
 
--  You could specify a different location for the source file with a 'source' argument:
+-  You could specify a different location for the source file with a '**source**' argument:
 
-   Examples:
-
-   -  A relative path: 
+   For example, a relative path: 
 
 ```
    C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar input\orders.csv
 ```
-   -  An absolute path: 
+   
+   Or, an absolute path: 
 ```
 C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar C:\Users\USER\Desktop\app\input\orders.csv
 ```
 
--  The app runs in silent mode by default. To generate logging information add the argument 'debug=true'
+-  The app runs in silent mode by default. To generate logging information add the argument '**debug=true**'
 
    For example: 
 ```            
    C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar debug=true
 ```
 
+### List of Supported Command Line Arguments
 
+|     Argument     |             Type               |     Default Value    |                    Implication                  | 
+| ---------------- | ------------------------------ | -------------------- | ----------------------------------------------- |
+| charset          | class java.nio.charset.Charset | system default value | Charset for I/O operations                      |
+| debug            | boolean                        | true                 | Display logging info                            |
+| limit            | int                            | Integer.MAX_VALUE    | Process at most this number of lines            |
+| offset           | int                            | 0                    | Start processing the line at this position      |
+| source           | text                           | input/orders.csv     | The source of CSV data (absolute or relative)   |
+| sourceHasHeaders | boolean                        | true                 | true if the source has headers, otherwise false |
 
 ### Notes
 
@@ -101,6 +108,7 @@ C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar C:\Users\USER\De
    Order.getType()  	
 ```
    vs
+
 ```java
    Chocolate.getType()
 ```
@@ -113,8 +121,6 @@ C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar C:\Users\USER\De
 -  @specs captures notes relating to given specifications.
 
 -  serialVersionUID was not generated for any of the classes.
-
--  Data classes are is not representative of relational database data. They are immutable.
 
 -  An invalid charset will not lead to an exception but cause default charset to be used.
 
