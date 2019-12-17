@@ -1,6 +1,6 @@
 ## chocogreen
 
-** A Java app to enable the fulfillment team at *chocogreen* generate clear 
+#### A Java app to enable the fulfillment team at *chocogreen* generate clear 
 information about the number of chocolates to serve up for wrapper-less orders**
 
 ### Specifications
@@ -78,7 +78,7 @@ information about the number of chocolates to serve up for wrapper-less orders**
 C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar C:\Users\USER\Desktop\app\input\orders.csv
 ```
 
--  The app runs in silent mode by default. To generate logging information add the argument '**debug=true**'
+-  The app runs in silent mode by default. To display logging information add the argument '**debug=true**'
 
    For example: 
 ```            
