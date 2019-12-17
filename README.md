@@ -2,6 +2,32 @@
 
 ### A Java app to enable fulfillment team at **chocogreen** generate clear information about the number of chocolates to serve up for wrapper-less orders
 
+### Specifications
+
+-  Java 1.8
+
+-  App bundled as **.jar** file.
+
+-  jar bundled with dependencies
+
+-  Dependencies
+
+```xml
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+```
 ### To Run the application
 
 -  Make sure java is on your class path.
@@ -12,37 +38,56 @@
 
 -  Make sure the input\orders.csv file is in the same folder with the jar file.
 
-   For example consider the following depicting related file locations:
+   For example consider the following, depicting related file locations:
 
-   -  Jar file: C:\Users\USER\Desktop\app\chocogreen-1.0-SNAPSHOT.jar
+   -  **Jar file**: C:\Users\USER\Desktop\app\chocogreen-1.0-SNAPSHOT.jar
 
-   -  CSV file: C:\Users\USER\Desktop\app\input\orders.csv
+   -  **CSV file**: C:\Users\USER\Desktop\app\input\orders.csv
 
    And here is the structure:
 
-   -  app *(C:\Users\USER\Desktop\app)*
+   -  **app** *(C:\Users\USER\Desktop\app)*
 
-      -  chocogreen.jar
+      -  **chocogreen.jar**
 
-      -  input
+      -  **input**
 
-         -  orders.csv  
+         -  **orders.csv**  
 
--  Run the following command: java -jar [JAR FILE]  
+-  Run the following command: 
 
-   -  For example: C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar
+```
+   java -jar [JAR FILE]  
+```
+
+   -  For example: 
+
+```
+   C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar
+```
 
 -  You could specify a different location for the source file with a 'source' argument:
 
    Examples:
 
-   -  A relative path: C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar input\orders.csv
+   -  A relative path: 
 
-   -  An absolute path: C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar C:\Users\USER\Desktop\app\input\orders.csv
+```
+   C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar input\orders.csv
+```
+   -  An absolute path: 
+```
+C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar C:\Users\USER\Desktop\app\input\orders.csv
+```
 
 -  The app runs in silent mode by default. To generate logging information add the argument 'debug=true'
 
-   For example: C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar debug=true
+   For example: 
+```            
+   C:\Users\USER\Desktop\app>java -jar chocogreen-1.0-SNAPSHOT.jar debug=true
+```
+
+
 
 ### Notes
 
