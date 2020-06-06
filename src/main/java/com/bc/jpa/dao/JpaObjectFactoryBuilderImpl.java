@@ -15,6 +15,7 @@
  */
 package com.bc.jpa.dao;
 
+import com.bc.jpa.dao.eclipselink.JpaObjectFactoryEclipselinkOptimized;
 import com.bc.jpa.dao.functions.EntityManagerFactoryCreator;
 import com.bc.jpa.dao.functions.EntityManagerFactoryCreatorImpl;
 import com.bc.jpa.dao.sql.MySQLDateTimePatterns;

@@ -26,15 +26,18 @@ import javax.persistence.Table;
 public class GetTableNameFromAnnotation implements Function<Class, String>, Serializable {
 
     /**
-     * @param aClass The class whose table name is to be returned
-     * @return The table name as extracted from the supplied entity type's annotation
+     * Get the table name from the Table annotation or throw Exception
+     * @param aClass
+     * @return
+     * @throws IllegalArgumentException 
      */
     @Override
     public String apply(Class aClass) throws IllegalArgumentException{
         final Table table = (Table)aClass.getAnnotation(Table.class);
-        if(table == null) {
-            throw new IllegalArgumentException("No Table annotation found on type: " + aClass);
+        final String name = table == null ? null : table.name();
+        if(name == null) {
+            throw new IllegalArgumentException();
         }
-        return table.name();
+        return name;
     }
 }

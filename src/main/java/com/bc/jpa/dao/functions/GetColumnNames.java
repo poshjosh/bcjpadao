@@ -16,46 +16,48 @@
 
 package com.bc.jpa.dao.functions;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.bc.db.meta.access.MetaDataAccess;
+import com.bc.db.meta.access.MetaDataAccessImpl;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EntityType;
 
 /**
  * @author Chinomso Bassey Ikwuagwu on Sep 26, 2018 1:28:05 PM
  */
 public class GetColumnNames implements Function<Class, List<String>> {
 
-    private final EntityManagerFactory emf;
+    private final MetaDataAccess mda;
+    private final Function<Class, String> getTableName;
 
     public GetColumnNames(EntityManagerFactory emf) {
-        this.emf = Objects.requireNonNull(emf);
+        this(new MetaDataAccessImpl(emf));
+    }
+
+    public GetColumnNames(MetaDataAccess mda) {
+        this(mda, new GetTableName(mda));
     }
     
+    public GetColumnNames(MetaDataAccess mda, Function<Class, String> getTableName) {
+        this.mda = Objects.requireNonNull(mda);
+        this.getTableName = Objects.requireNonNull(getTableName);
+    }
+
     @Override
     public List<String> apply(Class entityClass) {
-
-        final Set<EntityType<?>> entityTypes = emf.getMetamodel().getEntities();
         
-        Set<Attribute<?, ?>> attributes = Collections.EMPTY_SET; 
-        for(EntityType entityType : entityTypes) {
-            if(entityClass.equals(entityType.getJavaType())) {
-                attributes = entityType.getDeclaredSingularAttributes();// entityType.getDeclaredAttributes();
-                break;
-            }
-        }
+        final String tableName = this.getTableName.apply(entityClass);
+        
+        final List<String> columnNames = this.apply(tableName);
+        
+        return columnNames;
+    }
 
-        final List<String> columnNames = new ArrayList<>(attributes.size());
-        if(!attributes.isEmpty()) {
-            for(Attribute attribute : attributes) {
-                columnNames.add(attribute.getName());
-            }
-        }
-        return Collections.unmodifiableList(columnNames);
+    public List<String> apply(String tableName) {
+        
+        final List<String> columnNames = mda.fetchStringMetaData(tableName, MetaDataAccess.COLUMN_NAME);
+        
+        return columnNames;
     }
 }

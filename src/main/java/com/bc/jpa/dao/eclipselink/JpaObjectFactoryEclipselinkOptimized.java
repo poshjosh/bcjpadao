@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.bc.jpa.dao;
+package com.bc.jpa.dao.eclipselink;
 
+import com.bc.jpa.dao.JpaObjectFactoryImpl;
+import com.bc.jpa.dao.Select;
 import com.bc.jpa.dao.eclipselink.SelectEclipselinkOptimized;
 import com.bc.jpa.dao.functions.EntityManagerFactoryCreator;
 import com.bc.jpa.dao.sql.SQLDateTimePatterns;

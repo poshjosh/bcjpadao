@@ -33,7 +33,7 @@ public class GetEntityClassForTable implements BiFunction<String, Class, Class>,
     private final Function<Class, String> getTableName;
 
     public GetEntityClassForTable(EntityManagerFactory emf) {
-        this(new GetEntityClasses().apply(emf), new GetTableNameFromAnnotation());
+        this(new GetEntityClasses().apply(emf), new GetTableName());
     }
     
     public GetEntityClassForTable(Set<Class> entityClasses, Function<Class, String> getTableName) {
@@ -45,7 +45,7 @@ public class GetEntityClassForTable implements BiFunction<String, Class, Class>,
     @Override
     public Class apply(String table, Class outputIfNone) {
         for(Class cls : entityClasses) {
-            if(table.equals(this.getTableName.apply(cls))) {
+            if(table.equalsIgnoreCase(this.getTableName.apply(cls))) {
                 return cls;
             }
         }

@@ -25,7 +25,6 @@ import com.bc.jpa.dao.util.EntityMemberAccess;
 import com.bc.jpa.dao.util.EntityMemberAccessImpl;
 import com.bc.jpa.dao.util.EntityReference;
 import com.bc.jpa.dao.util.EntityReferenceImpl;
-import java.net.URL;
 import java.util.Properties;
 import java.util.function.Function;
 import javax.persistence.EntityManager;
@@ -35,7 +34,7 @@ import javax.persistence.EntityTransaction;
 /**
  * @author Chinomso Bassey Ikwuagwu on Sep 18, 2018 3:22:08 PM
  */
-public interface JpaObjectFactory extends AutoCloseable {
+public interface JpaObjectFactory{
     
     interface Builder {
         
@@ -83,7 +82,6 @@ public interface JpaObjectFactory extends AutoCloseable {
     
     boolean isOpen();
     
-    @Override
     void close();
     
     EntityManagerFactory getEntityManagerFactory();  

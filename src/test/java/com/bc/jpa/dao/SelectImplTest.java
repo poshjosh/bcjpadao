@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.bc.jpa.dao;
 
 import com.bc.tasktracker.jpa.entities.Task;
@@ -16,7 +11,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- *
  * @author Josh
  */
 public class SelectImplTest {
