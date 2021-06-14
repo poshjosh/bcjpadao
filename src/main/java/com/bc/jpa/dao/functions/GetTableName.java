@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.bc.jpa.dao.functions;
 
 import com.bc.db.meta.access.MetaDataAccess;
@@ -82,7 +81,7 @@ public class GetTableName extends GetTableNameFromAnnotation {
         }
 
         if(table == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Failed to deduce table name for type: " + aClass);
         }
 
         return table;
